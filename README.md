@@ -2,7 +2,7 @@
 Adds accuracy information to level select and when playing
 
 ## Dependencies:
-[TrombLoader](https://github.com/NyxTheShield/TrombLoader)
+[TrombLoader](https://github.com/NyxTheShield/TrombLoader)    
 [TrombSettings](https://github.com/HypersonicSharkz/TrombSettings)    
 
 
