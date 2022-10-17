@@ -1,7 +1,9 @@
 # HighscoreAccuracy
 Adds accuracy information to level select and when playing
 
-Requires [TrombSettings](https://github.com/HypersonicSharkz/TrombSettings)    
+## Dependencies:
+[TrombLoader](https://github.com/NyxTheShield/TrombLoader)
+[TrombSettings](https://github.com/HypersonicSharkz/TrombSettings)    
 
 
   
