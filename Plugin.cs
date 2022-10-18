@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using BepInEx;
 using BepInEx.Configuration;
@@ -61,24 +59,16 @@ namespace HighscoreAccuracy
         }
 
         [HarmonyPatch(typeof(LevelSelectController), "populateScores")]
-        private static void Postfix(LevelSelectController __instance, int ___songindex)
+        private static void Postfix(LevelSelectController __instance, int ___songindex, List<SingleTrackData> ___alltrackslist)
         {
-            GetMaxScore(___songindex, out int gameMax, out int realMax);
+            GetMaxScore(___alltrackslist[___songindex].trackref, out int gameMax, out int realMax);
             for (int k = 0; k < 5; k++)
             {
                 try
                 {
                     __instance.topscores[k].fontSize = 9;
-
-                    float percent = 0;
-                    if (accType.Value == AccType.Real)
-                    {
-                        percent = float.Parse(__instance.topscores[k].text) / realMax;
-                    }
-                    else
-                    {
-                        percent = float.Parse(__instance.topscores[k].text) / gameMax;
-                    }
+                    float max = accType.Value == AccType.Real ? realMax : gameMax;
+                    float percent = float.Parse(__instance.topscores[k].text) / max;
 
                     string letter = "";
                     if (showLetterRank.Value)
@@ -104,13 +94,13 @@ namespace HighscoreAccuracy
 
         static IEnumerator SetTextLate(PointSceneController __instance, int ___totalscore)
         {
-
             yield return new WaitForSeconds(0.2f);
 
             float percent;
             float prevPrecent;
 
-            GetMaxScore(GlobalVariables.levelselect_index, out int gameMax, out int realMax);
+            string trackRef = GlobalVariables.data_trackrefs[GlobalVariables.levelselect_index];
+            GetMaxScore(trackRef, out int gameMax, out int realMax);
 
             if (accType.Value == AccType.Real)
             {
@@ -134,7 +124,7 @@ namespace HighscoreAccuracy
             if (showPBIngame.Value)
             {
                 Utils.GetMaxScore(___leveldata, out int gameMax, out int realMax);
-                int highscore = int.Parse(GlobalVariables.localsave.data_trackscores[FindTrackIndex(GlobalVariables.chosen_track)][2]);
+                int highscore = FindHighScore(GlobalVariables.chosen_track);
 
                 if (highscore > 0)
                 {
@@ -149,16 +139,8 @@ namespace HighscoreAccuracy
                     var foregroundText = pb.transform.Find("Score").GetComponent<Text>();
                     var shadowText = pb.GetComponent<Text>();
 
-                    float percent = 0;
-
-                    if (accType.Value == AccType.Real)
-                    {
-                        percent = ((float)highscore / (float)realMax) * 100;
-                    }
-                    else if (accType.Value == AccType.BaseGame)
-                    {
-                        percent = ((float)highscore / (float)realMax) * 100;
-                    }
+                    float max = accType.Value == AccType.Real ? realMax : gameMax;
+                    float percent = highscore / max * 100;
 
                     foregroundText.text = "PB: " + percent.FormatDecimals() + "%";
                     shadowText.text = "PB: " + percent.FormatDecimals() + "%";
@@ -180,18 +162,12 @@ namespace HighscoreAccuracy
             }
         }
 
-        private static int FindTrackIndex(string trackref)
+        private static int FindHighScore(string trackRef)
         {
-            int num = 0;
-            for (int i = 0; i < 100; i++)
-            {
-                if (GlobalVariables.localsave.data_trackscores[i][0] == trackref)
-                {
-                    num = i;
-                    break;
-                }
-            }
-            return num;
+            string[] trackScores = GlobalVariables.localsave.data_trackscores
+                .Where(i => i != null && i[0] == trackRef)
+                .FirstOrDefault();
+            return trackScores == null ? 0 : int.Parse(trackScores[2]);
         }
 
         [HarmonyPatch(typeof(GameController), "getScoreAverage")]
@@ -247,16 +223,15 @@ namespace HighscoreAccuracy
             return -c / 2f * (t * (t - 2f) - 1f) + b;
         }*/
 
-        private static void GetMaxScore(int levelId, out int gameMaxScore, out int realMaxScore)
+        private static void GetMaxScore(string trackRef, out int gameMaxScore, out int realMaxScore)
         {
-            string text = Application.streamingAssetsPath + "/leveldata/" + GlobalVariables.data_trackrefs[levelId] + ".tmb";
+            string text = Application.streamingAssetsPath + "/leveldata/" + trackRef + ".tmb";
             List<float[]> levelData = new List<float[]>();
 
             if (!File.Exists(text))
             {
                 //Must be custom level
-                string trackReference = GlobalVariables.data_trackrefs[levelId];
-                string customChartPath = Globals.GetCustomSongsPath() + trackReference + "/song.tmb";
+                string customChartPath = Globals.GetCustomSongsPath() + trackRef + "/song.tmb";
 
                 string baseChartName = Application.streamingAssetsPath + "/leveldata/ballgame.tmb";
 
@@ -282,7 +257,6 @@ namespace HighscoreAccuracy
 
                 levelData = savedLevel.savedleveldata;
             }
-            
             Utils.GetMaxScore(levelData, out gameMaxScore, out realMaxScore);
         }
     }
