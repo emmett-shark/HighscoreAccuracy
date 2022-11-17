@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading.Tasks;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
@@ -19,7 +20,7 @@ namespace HighscoreAccuracy
     [HarmonyPatch]
     [BepInDependency("com.steven.trombone.accuracycounter", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.hypersonicsharkz.trombsettings")]
-    [BepInPlugin("com.hypersonicsharkz.highscoreaccuracy", "Highscore Accuracy", "1.0.0")]
+    [BepInPlugin("com.hypersonicsharkz.highscoreaccuracy", "Highscore Accuracy", "1.0.1")]
     public class Plugin : BaseUnityPlugin
     {
         internal static Plugin Instance;
@@ -66,17 +67,21 @@ namespace HighscoreAccuracy
             {
                 try
                 {
-                    __instance.topscores[k].fontSize = 9;
                     float max = accType.Value == AccType.Real ? realMax : gameMax;
-                    float percent = float.Parse(__instance.topscores[k].text) / max;
 
-                    string letter = "";
-                    if (showLetterRank.Value)
+                    if (float.TryParse(__instance.topscores[k].text, out float percent))
                     {
-                        letter = Utils.ScoreLetter(float.Parse(__instance.topscores[k].text) / gameMax);
-                    }
+                        __instance.topscores[k].fontSize = 9;
+                        percent /= max;
 
-                    __instance.topscores[k].text = __instance.topscores[k].text + " " + (100 * percent).FormatDecimals() + "% " + letter;
+                        string letter = "";
+                        if (showLetterRank.Value)
+                        {
+                            letter = Utils.ScoreLetter(float.Parse(__instance.topscores[k].text) / gameMax);
+                        }
+
+                        __instance.topscores[k].text = __instance.topscores[k].text + " " + (100 * percent).FormatDecimals() + "% " + letter;
+                    }
                 }
                 catch (Exception e)
                 {
@@ -84,7 +89,7 @@ namespace HighscoreAccuracy
                 }
 
             }
-		}
+        }
 
         [HarmonyPatch(typeof(PointSceneController), "doneWithCountUp")]
         private static void Postfix(PointSceneController __instance, int ___totalscore)
@@ -99,7 +104,7 @@ namespace HighscoreAccuracy
             float percent;
             float prevPrecent;
 
-            string trackRef = GlobalVariables.data_trackrefs[GlobalVariables.levelselect_index];
+            string trackRef = GlobalVariables.chosen_track_data.trackref;
             GetMaxScore(trackRef, out int gameMax, out int realMax);
 
             if (accType.Value == AccType.Real)
@@ -178,50 +183,6 @@ namespace HighscoreAccuracy
                 PercentCounter.scoreChanged(___totalscore, ___currentnoteindex);
             }
         }
-
-
-
-        /*
-        [HarmonyPatch(typeof(GameController), "Update")]
-        private static void Postfix(Text ___ui_score, bool ___noteactive, float ___currentnoteend, float ___currentnotestart, float ___currentnotepshift, RectTransform ___pointerrect, float ___currentnotestarty, RectTransform ___noteholderr, float ___zeroxpos)
-        {
-            float num10 = ___noteholderr.anchoredPosition3D.x - ___zeroxpos;
-
-            float num11 = (___currentnoteend - num10) / (___currentnoteend - ___currentnotestart);
-            num11 = Mathf.Abs(1f - num11);
-            float num12 = easeInOutVal(num11, 0f, ___currentnotepshift, 1f);
-            float f = ___pointerrect.anchoredPosition.y - (___currentnotestarty + num12);
-            float num13 = 100f - Mathf.Abs(f);
-
-            Debug.Log(string.Concat(new object[]
-            {
-                "11: ",
-                num11,
-                " / 12: ",
-                num12,
-                " / f: ",
-                f,
-                " / 13: ",
-                num13,
-                " / 10?: ",
-                num10
-            }));
-
-            ___ui_score.text = f.ToString();
-
-        }
-
-
-        private static float easeInOutVal(float t, float b, float c, float d)
-        {
-            t /= d / 2f;
-            if (t < 1f)
-            {
-                return c / 2f * t * t + b;
-            }
-            t -= 1f;
-            return -c / 2f * (t * (t - 2f) - 1f) + b;
-        }*/
 
         private static void GetMaxScore(string trackRef, out int gameMaxScore, out int realMaxScore)
         {
