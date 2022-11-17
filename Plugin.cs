@@ -20,7 +20,7 @@ namespace HighscoreAccuracy
     [HarmonyPatch]
     [BepInDependency("com.steven.trombone.accuracycounter", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.hypersonicsharkz.trombsettings")]
-    [BepInPlugin("com.hypersonicsharkz.highscoreaccuracy", "Highscore Accuracy", "1.0.1")]
+    [BepInPlugin("com.hypersonicsharkz.highscoreaccuracy", "Highscore Accuracy", "1.1.2")]
     public class Plugin : BaseUnityPlugin
     {
         internal static Plugin Instance;
