@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading.Tasks;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
@@ -20,7 +19,7 @@ namespace HighscoreAccuracy
     [HarmonyPatch]
     [BepInDependency("com.steven.trombone.accuracycounter", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.hypersonicsharkz.trombsettings")]
-    [BepInPlugin("com.hypersonicsharkz.highscoreaccuracy", "Highscore Accuracy", "1.1.2")]
+    [BepInPlugin("com.hypersonicsharkz.highscoreaccuracy", "Highscore Accuracy", "1.1.3")]
     public class Plugin : BaseUnityPlugin
     {
         internal static Plugin Instance;
@@ -186,39 +185,42 @@ namespace HighscoreAccuracy
 
         private static void GetMaxScore(string trackRef, out int gameMaxScore, out int realMaxScore)
         {
-            string text = Application.streamingAssetsPath + "/leveldata/" + trackRef + ".tmb";
-            List<float[]> levelData = new List<float[]>();
+            string baseTmb = Application.streamingAssetsPath + "/leveldata/" + trackRef + ".tmb";
+            List<float[]> levelData = !File.Exists(baseTmb)
+                ? GetCustomLevelData(trackRef)
+                : GetBaseLevelData(baseTmb);
 
-            if (!File.Exists(text))
+            Utils.GetMaxScore(levelData, out gameMaxScore, out realMaxScore);
+        }
+
+        private static List<float[]> GetBaseLevelData(string baseTmb) => GetSavedLevel(baseTmb).savedleveldata;
+
+        private static List<float[]> GetCustomLevelData(string trackRef)
+        {
+            if (!Globals.ChartFolders.TryGetValue(trackRef, out string customChartPath))
             {
-                //Must be custom level
-                string customChartPath = Globals.GetCustomSongsPath() + trackRef + "/song.tmb";
-
+                Instance.Logger.LogWarning($"Could not find {trackRef}");
+                return new List<float[]>();
+            }
+            using (var streamReader = new StreamReader(customChartPath + "/song.tmb"))
+            {
                 string baseChartName = Application.streamingAssetsPath + "/leveldata/ballgame.tmb";
-
-                BinaryFormatter binaryFormatter = new BinaryFormatter();
-                FileStream fileStream = File.Open(baseChartName, FileMode.Open);
-                SavedLevel savedLevel = (SavedLevel)binaryFormatter.Deserialize(fileStream);
-                fileStream.Close();
-
+                SavedLevel savedLevel = GetSavedLevel(baseChartName);
                 CustomSavedLevel customLevel = new CustomSavedLevel(savedLevel);
-
-                string jsonString = File.ReadAllText(customChartPath);
+                string jsonString = streamReader.ReadToEnd();
                 var jsonObject = JSON.Parse(jsonString);
                 customLevel.Deserialize(jsonObject);
-
-                levelData = customLevel.savedleveldata;
+                return customLevel.savedleveldata;
             }
-            else
+        }
+
+        private static SavedLevel GetSavedLevel(string baseTmb)
+        {
+            using (FileStream fileStream = File.Open(baseTmb, FileMode.Open))
             {
                 BinaryFormatter binaryFormatter = new BinaryFormatter();
-                FileStream fileStream = File.Open(text, FileMode.Open);
-                SavedLevel savedLevel = (SavedLevel)binaryFormatter.Deserialize(fileStream);
-                fileStream.Close();
-
-                levelData = savedLevel.savedleveldata;
+                return (SavedLevel)binaryFormatter.Deserialize(fileStream);
             }
-            Utils.GetMaxScore(levelData, out gameMaxScore, out realMaxScore);
         }
     }
 }
