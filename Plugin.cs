@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using BepInEx;
 using BepInEx.Configuration;
+using BepInEx.Logging;
 using HarmonyLib;
 using SimpleJSON;
 using TrombLoader.Data;
@@ -19,10 +20,11 @@ namespace HighscoreAccuracy
     [HarmonyPatch]
     [BepInDependency("com.steven.trombone.accuracycounter", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.hypersonicsharkz.trombsettings")]
-    [BepInPlugin("com.hypersonicsharkz.highscoreaccuracy", "Highscore Accuracy", "1.1.3")]
+    [BepInPlugin("com.hypersonicsharkz.highscoreaccuracy", "Highscore Accuracy", "1.1.4")]
     public class Plugin : BaseUnityPlugin
     {
         internal static Plugin Instance;
+        internal static ManualLogSource Log;
 
         public enum AccType
         {
@@ -39,6 +41,7 @@ namespace HighscoreAccuracy
         private void Awake()
         {
             Instance = this;
+            Log = Logger;
 
             accType = Config.Bind("General", "Acc Type", AccType.BaseGame);
             showLetterRank = Config.Bind("General", "Show Letters", true);
@@ -62,6 +65,7 @@ namespace HighscoreAccuracy
         private static void Postfix(LevelSelectController __instance, int ___songindex, List<SingleTrackData> ___alltrackslist)
         {
             GetMaxScore(___alltrackslist[___songindex].trackref, out int gameMax, out int realMax);
+            //Log.LogDebug($"{___alltrackslist[___songindex].trackname_short} max score: {gameMax}");
             for (int k = 0; k < 5; k++)
             {
                 try

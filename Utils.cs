@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace HighscoreAccuracy
@@ -12,7 +9,7 @@ namespace HighscoreAccuracy
     {
         public static string FormatDecimals<T>(this T _number) where T : struct, IComparable, IComparable<T>, IConvertible, IEquatable<T>, IFormattable
         {
-            return String.Format(new NumberFormatInfo() { NumberDecimalDigits = Plugin.decimals.Value }, "{0:F}", _number);
+            return string.Format(new NumberFormatInfo() { NumberDecimalDigits = Plugin.decimals.Value }, "{0:F}", _number);
         }
 
         public static string ScoreLetter(float percentage)
@@ -38,7 +35,6 @@ namespace HighscoreAccuracy
             {
                 text = "D";
             }
-
             return text;
         }
 
@@ -61,13 +57,10 @@ namespace HighscoreAccuracy
             if (noteIndex > 23)
                 champbonus = 1.5f;
 
-            float num1 = Mathf.Floor(noteData[1] * 10f);
-
-            float num5 = Mathf.Floor(num1 * 100f * (((float)Math.Min(noteIndex, 10) + champbonus) * 0.1f + 1f)) * 10f;
+            float num5 = Mathf.Floor(Mathf.Floor(noteData[1] * 10f) * 100f * ((Math.Min(noteIndex, 10) + champbonus) * 0.1f + 1f)) * 10f;
             realMax = Mathf.FloorToInt(num5);
 
-            float f = Mathf.Floor(num1 * 100f * 1.3f) * 10f;
-            gameMax = Mathf.FloorToInt(f);
+            gameMax = (int)Mathf.Floor(Mathf.Floor(Mathf.Floor(noteData[1] * 10f) * 100f * 1.3f) * 10f);
         }
     }
 }
