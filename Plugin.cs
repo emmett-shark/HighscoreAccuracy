@@ -102,7 +102,7 @@ namespace HighscoreAccuracy
 
         static IEnumerator SetTextLate(PointSceneController __instance, int ___totalscore)
         {
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(0f);
 
             float percent;
             float prevPrecent;

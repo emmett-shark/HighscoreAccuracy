@@ -57,10 +57,11 @@ namespace HighscoreAccuracy
             if (noteIndex > 23)
                 champbonus = 1.5f;
 
-            float num5 = Mathf.Floor(Mathf.Floor(noteData[1] * 10f) * 100f * ((Math.Min(noteIndex, 10) + champbonus) * 0.1f + 1f)) * 10f;
-            realMax = Mathf.FloorToInt(num5);
+            float realCoefficient = (Math.Min(noteIndex, 10) + champbonus) * 0.1f + 1f;
 
-            gameMax = (int)Mathf.Floor(Mathf.Floor(Mathf.Floor(noteData[1] * 10f) * 100f * 1.3f) * 10f);
+            realMax = (int)Mathf.Floor(Mathf.Floor(noteData[1] * 10f * 100f * realCoefficient) * 10f);
+
+            gameMax = (int)Mathf.Floor(Mathf.Floor(noteData[1] * 10f * 100f * 1.3f) * 10f);
         }
     }
 }
