@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
-using SimpleJSON;
-using TrombLoader.Data;
-using TrombLoader.Helpers;
 using TrombSettings;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,18 +13,13 @@ using UnityEngine.UI;
 namespace HighscoreAccuracy
 {
     [HarmonyPatch]
-    [BepInDependency("com.hypersonicsharkz.trombsettings")]
-    [BepInPlugin("com.hypersonicsharkz.highscoreaccuracy", "Highscore Accuracy", "1.1.4")]
+    [BepInDependency("TrombSettings", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("TrombLoader")]
+    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
         internal static Plugin Instance;
         internal static ManualLogSource Log;
-
-        public enum AccType
-        {
-            BaseGame,
-            Real
-        }
 
         internal static ConfigEntry<AccType> accType;
         internal static ConfigEntry<bool> showLetterRank;
@@ -60,31 +50,24 @@ namespace HighscoreAccuracy
             settings.Add(showScoreIngame);
             settings.Add(showPBIngame);
 
-            new Harmony("com.hypersonicsharkz.highscoreaccuracy").PatchAll();
+            new Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
         }
 
         [HarmonyPatch(typeof(LevelSelectController), "populateScores")]
         private static void Postfix(LevelSelectController __instance, int ___songindex, List<SingleTrackData> ___alltrackslist)
         {
-            GetMaxScore(___alltrackslist[___songindex].trackref, out int gameMax, out int realMax);
-            //Log.LogDebug($"{___alltrackslist[___songindex].trackname_short} max score: {gameMax}");
+            var levelData = Utils.GetLevelData(___alltrackslist[___songindex].trackref);
             for (int k = 0; k < 5; k++)
             {
                 try
                 {
-                    float max = accType.Value == AccType.Real ? realMax : gameMax;
-
-                    if (float.TryParse(__instance.topscores[k].text, out float percent))
+                    if (float.TryParse(__instance.topscores[k].text, out float topScore))
                     {
                         __instance.topscores[k].fontSize = 9;
-                        percent /= max;
 
-                        string letter = "";
-                        if (showLetterRank.Value)
-                        {
-                            letter = Utils.ScoreLetter(float.Parse(__instance.topscores[k].text) / gameMax);
-                        }
+                        string letter = showLetterRank.Value ? Utils.ScoreLetter(topScore / Utils.GetMaxScore(AccType.BaseGame, levelData)) : "";
 
+                        float percent = topScore / Utils.GetMaxScore(accType.Value, levelData);
                         __instance.topscores[k].text = __instance.topscores[k].text + " " + (100 * percent).FormatDecimals() + "% " + letter;
                     }
                 }
@@ -96,32 +79,14 @@ namespace HighscoreAccuracy
             }
         }
 
-        [HarmonyPatch(typeof(PointSceneController), "doneWithCountUp")]
-        private static void Postfix(PointSceneController __instance, int ___totalscore)
+        [HarmonyPatch(typeof(PointSceneController), "doCoins")]
+        private static void Postfix(PointSceneController __instance)
         {
-            Instance.StartCoroutine(SetTextLate(__instance, ___totalscore));
-        }
-
-        static IEnumerator SetTextLate(PointSceneController __instance, int ___totalscore)
-        {
-            yield return new WaitForSeconds(0f);
-
-            float percent;
-            float prevPrecent;
-
             string trackRef = GlobalVariables.chosen_track_data.trackref;
-            GetMaxScore(trackRef, out int gameMax, out int realMax);
-
-            if (accType.Value == AccType.Real)
-            {
-                percent = ((float)___totalscore / (float)realMax) * 100;
-                prevPrecent = (float.Parse(__instance.txt_prevhigh.text) / (float)realMax) * 100;
-            }
-            else
-            {
-                percent = (GlobalVariables.gameplay_scoreperc * 100);
-                prevPrecent = (float.Parse(__instance.txt_prevhigh.text) / (float)gameMax) * 100;
-            }
+            List<float[]> levelData = Utils.GetLevelData(trackRef);
+            int max = Utils.GetMaxScore(accType.Value, levelData);
+            float percent = (float)GlobalVariables.gameplay_scoretotal / max * 100;
+            float prevPrecent = float.Parse(__instance.txt_prevhigh.text) / max * 100;
 
             __instance.scorecountertext.text += " " + percent.FormatDecimals() + "%";
             __instance.txt_prevhigh.text += " " + prevPrecent.FormatDecimals() + "%";
@@ -130,13 +95,12 @@ namespace HighscoreAccuracy
         [HarmonyPatch(typeof(GameController), "Start")]
         private static void Postfix(GameController __instance, List<float[]> ___leveldata)
         {
+            if (__instance.freeplay) return;
             float pbValue = 0;
             GameObject gameObject = GameObject.Find("ScoreShadow");
             if (showPBIngame.Value)
             {
-                Utils.GetMaxScore(___leveldata, out int gameMax, out int realMax);
                 int highscore = FindHighScore(GlobalVariables.chosen_track);
-
                 if (highscore > 0)
                 {
                     GameObject pb = Instantiate(gameObject, gameObject.transform.parent);
@@ -149,7 +113,7 @@ namespace HighscoreAccuracy
                     var foregroundText = pb.transform.Find("Score").GetComponent<Text>();
                     var shadowText = pb.GetComponent<Text>();
 
-                    float max = accType.Value == AccType.Real ? realMax : gameMax;
+                    float max = Utils.GetMaxScore(accType.Value, ___leveldata);
                     float percent = highscore / max * 100;
 
                     foregroundText.text = "PB: " + percent.FormatDecimals() + "%";
@@ -161,20 +125,12 @@ namespace HighscoreAccuracy
 
             if (showAccIngame.Value)
             {
-                if (__instance.freeplay)
-                {
-                    return;
-                }
                 PercentCounter percentCounter = Instantiate(gameObject, gameObject.transform.parent).AddComponent<PercentCounter>();
                 percentCounter.Init(___leveldata, pbValue);
             }
 
             if (showScoreIngame.Value)
             {
-                if (__instance.freeplay)
-                {
-                    return;
-                }
                 ScoreCounter scoreCounter = Instantiate(gameObject, gameObject.transform.parent).AddComponent<ScoreCounter>();
                 scoreCounter.Init(___leveldata);
             }
@@ -198,46 +154,6 @@ namespace HighscoreAccuracy
             if (showScoreIngame.Value)
             {
                 ScoreCounter.scoreChanged(___totalscore, ___currentnoteindex);
-            }
-        }
-
-        private static void GetMaxScore(string trackRef, out int gameMaxScore, out int realMaxScore)
-        {
-            string baseTmb = Application.streamingAssetsPath + "/leveldata/" + trackRef + ".tmb";
-            List<float[]> levelData = !File.Exists(baseTmb)
-                ? GetCustomLevelData(trackRef)
-                : GetBaseLevelData(baseTmb);
-
-            Utils.GetMaxScore(levelData, out gameMaxScore, out realMaxScore);
-        }
-
-        private static List<float[]> GetBaseLevelData(string baseTmb) => GetSavedLevel(baseTmb).savedleveldata;
-
-        private static List<float[]> GetCustomLevelData(string trackRef)
-        {
-            if (!Globals.ChartFolders.TryGetValue(trackRef, out string customChartPath))
-            {
-                Instance.Logger.LogWarning($"Could not find {trackRef}");
-                return new List<float[]>();
-            }
-            using (var streamReader = new StreamReader(customChartPath + "/song.tmb"))
-            {
-                string baseChartName = Application.streamingAssetsPath + "/leveldata/ballgame.tmb";
-                SavedLevel savedLevel = GetSavedLevel(baseChartName);
-                CustomSavedLevel customLevel = new CustomSavedLevel(savedLevel);
-                string jsonString = streamReader.ReadToEnd();
-                var jsonObject = JSON.Parse(jsonString);
-                customLevel.Deserialize(jsonObject);
-                return customLevel.savedleveldata;
-            }
-        }
-
-        private static SavedLevel GetSavedLevel(string baseTmb)
-        {
-            using (FileStream fileStream = File.Open(baseTmb, FileMode.Open))
-            {
-                BinaryFormatter binaryFormatter = new BinaryFormatter();
-                return (SavedLevel)binaryFormatter.Deserialize(fileStream);
             }
         }
     }

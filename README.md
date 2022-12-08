@@ -2,17 +2,29 @@
 Adds accuracy information to level select and when playing
 
 ## Dependencies:
-[TrombLoader](https://github.com/NyxTheShield/TrombLoader)    
-[TrombSettings](https://github.com/HypersonicSharkz/TrombSettings)    
-*If you also want a letter rank while in a track:*   
-[Accuracy Counter](https://cdn.discordapp.com/attachments/1022946803550793781/1026057201590206564/AccuracyCounter.dll)    
+- [TrombSettings](https://github.com/HypersonicSharkz/TrombSettings) (optional)
 
-  
+## Changelog
+v1.1.4
+- Fix max score calculation for TC 1.088
+
+v1.1.3
+- Fix bug where custom song trackref does not match folder name
+
+v1.1.2
+- Fix for TC 1.086
+
+v1.1.1
+- Fix bug that displays wrong score after sorting
+- Fix bug that doesn't search for all the songs
+- Fix bug where realMax is used for calculation when you want gameMax
+
+v1.1.0
+- Initial release
 
 ## Features
-- Show accuracy on highscores in the level select menu
-- Shows accuracy when playing a track
-- Show personal best while playing a track
+- Shows accuracy on highscores in the level select menu
+- Shows accuracy, letter score, and personal best while playing a track
 - Shows accuracy on end screen
 - Accuracy Types:
   - Base Game

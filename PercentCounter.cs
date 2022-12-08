@@ -13,6 +13,7 @@ namespace HighscoreAccuracy
         private Text foregroundText;
         private Text shadowText;
         private float pb;
+        private float maxScore = 0;
 
         public void Init(List<float[]> _leveldata, float _pb)
         {
@@ -41,23 +42,11 @@ namespace HighscoreAccuracy
             scoreChanged = (Action<int, int>)Delegate.Remove(scoreChanged, new Action<int, int>(OnScoreChanged));
         }
 
-        private float realMaxScore;
-        private float gameMaxScore;
-
         internal void OnScoreChanged(int totalScore, int noteIndex)
         {
-            Utils.GetMaxScoreFromNote(leveldata[noteIndex], noteIndex, out int gameNoteMax, out int realNoteMax);
-            realMaxScore += realNoteMax;
-            gameMaxScore += gameNoteMax;
-
-            float percent = 0;
-            if (Plugin.accType.Value == Plugin.AccType.Real)
-                percent = (totalScore / realMaxScore) * 100;
-            else
-                percent = (totalScore / gameMaxScore) * 100;
-
+            maxScore += Utils.GetMaxScore(Plugin.accType.Value, leveldata[noteIndex][1], noteIndex);
+            float percent = totalScore / maxScore * 100;
             string percentText = percent.FormatDecimals() + "%";
-            
             foregroundText.text = percentText;
             shadowText.text = percentText;
 
