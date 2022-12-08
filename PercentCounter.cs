@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -33,7 +29,7 @@ namespace HighscoreAccuracy
             foregroundText.text = 100.FormatDecimals() + "%";
             shadowText.text = 100.FormatDecimals() + "%";
 
-            RectTransform rect = base.GetComponent<RectTransform>();
+            RectTransform rect = GetComponent<RectTransform>();
             rect.anchoredPosition = new Vector2(rect.anchoredPosition.x - 50f, rect.anchoredPosition.y - 25f);
 
 
@@ -69,16 +65,13 @@ namespace HighscoreAccuracy
             {
                 foregroundText.color = Color.green;
             }
+            else if (percent < pb - 10)
+            {
+                foregroundText.color = Color.red;
+            }
             else
             {
-                if (percent < pb - 10)
-                {
-                    foregroundText.color = Color.red;
-                }
-                else
-                {
-                    foregroundText.color = Color.yellow;
-                }
+                foregroundText.color = Color.yellow;
             }
         }
     }

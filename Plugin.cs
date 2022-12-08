@@ -18,7 +18,6 @@ using UnityEngine.UI;
 namespace HighscoreAccuracy
 {
     [HarmonyPatch]
-    [BepInDependency("com.steven.trombone.accuracycounter", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.hypersonicsharkz.trombsettings")]
     [BepInPlugin("com.hypersonicsharkz.highscoreaccuracy", "Highscore Accuracy", "1.1.4")]
     public class Plugin : BaseUnityPlugin
@@ -36,6 +35,7 @@ namespace HighscoreAccuracy
         internal static ConfigEntry<bool> showLetterRank;
         internal static ConfigEntry<int> decimals;
         internal static ConfigEntry<bool> showAccIngame;
+        internal static ConfigEntry<bool> showScoreIngame;
         internal static ConfigEntry<bool> showPBIngame;
 
         private void Awake()
@@ -47,6 +47,7 @@ namespace HighscoreAccuracy
             showLetterRank = Config.Bind("General", "Show Letters", true);
             decimals = Config.Bind("General", "Decimal Places", 2);
             showAccIngame = Config.Bind("General", "Show acc in track", true);
+            showScoreIngame = Config.Bind("General", "Show score in track", false);
             showPBIngame = Config.Bind("General", "Show PB in track", true);
 
             TrombEntryList settings = TrombConfig.TrombSettings["Highscore Acc"];
@@ -56,6 +57,7 @@ namespace HighscoreAccuracy
             settings.Add(new StepSliderConfig(0, 4, 1, true, decimals));
 
             settings.Add(showAccIngame);
+            settings.Add(showScoreIngame);
             settings.Add(showPBIngame);
 
             new Harmony("com.hypersonicsharkz.highscoreaccuracy").PatchAll();
@@ -129,6 +131,7 @@ namespace HighscoreAccuracy
         private static void Postfix(GameController __instance, List<float[]> ___leveldata)
         {
             float pbValue = 0;
+            GameObject gameObject = GameObject.Find("ScoreShadow");
             if (showPBIngame.Value)
             {
                 Utils.GetMaxScore(___leveldata, out int gameMax, out int realMax);
@@ -136,8 +139,7 @@ namespace HighscoreAccuracy
 
                 if (highscore > 0)
                 {
-                    GameObject gameObject = GameObject.Find("ScoreShadow");
-                    GameObject pb = UnityEngine.Object.Instantiate<GameObject>(gameObject, gameObject.transform.parent);
+                    GameObject pb = Instantiate(gameObject, gameObject.transform.parent);
 
                     pb.transform.localScale = Vector3.one;
 
@@ -156,17 +158,25 @@ namespace HighscoreAccuracy
                     pbValue = percent;
                 }
             }
-           
+
             if (showAccIngame.Value)
             {
                 if (__instance.freeplay)
                 {
                     return;
                 }
-                GameObject gameObject = GameObject.Find("ScoreShadow");
-                PercentCounter counter = UnityEngine.Object.Instantiate<GameObject>(gameObject, gameObject.transform.parent).AddComponent<PercentCounter>();
+                PercentCounter percentCounter = Instantiate(gameObject, gameObject.transform.parent).AddComponent<PercentCounter>();
+                percentCounter.Init(___leveldata, pbValue);
+            }
 
-                counter.Init(___leveldata, pbValue);
+            if (showScoreIngame.Value)
+            {
+                if (__instance.freeplay)
+                {
+                    return;
+                }
+                ScoreCounter scoreCounter = Instantiate(gameObject, gameObject.transform.parent).AddComponent<ScoreCounter>();
+                scoreCounter.Init(___leveldata);
             }
         }
 
@@ -184,6 +194,10 @@ namespace HighscoreAccuracy
             if (showAccIngame.Value)
             {
                 PercentCounter.scoreChanged(___totalscore, ___currentnoteindex);
+            }
+            if (showScoreIngame.Value)
+            {
+                ScoreCounter.scoreChanged(___totalscore, ___currentnoteindex);
             }
         }
 

@@ -12,31 +12,8 @@ namespace HighscoreAccuracy
             return string.Format(new NumberFormatInfo() { NumberDecimalDigits = Plugin.decimals.Value }, "{0:F}", _number);
         }
 
-        public static string ScoreLetter(float percentage)
-        {
-            string text = "F";
-            if (percentage > 1f)
-            {
-                text = "S";
-            }
-            else if (percentage > 0.8f)
-            {
-                text = "A";
-            }
-            else if (percentage > 0.6f)
-            {
-                text = "B";
-            }
-            else if (percentage > 0.4f)
-            {
-                text = "C";
-            }
-            else if (percentage > 0.2f)
-            {
-                text = "D";
-            }
-            return text;
-        }
+        public static string ScoreLetter(float num) =>
+            num < 1f ? (num < 0.8f ? (num < 0.6f ? (num < 0.4f ? (num < 0.2f ? "F" : "D") : "C") : "B") : "A") : "S";
 
         public static void GetMaxScore(List<float[]> levelData, out int gameMaxScore, out int realMaxScore)
         {
@@ -61,7 +38,10 @@ namespace HighscoreAccuracy
 
             realMax = (int)Mathf.Floor(Mathf.Floor(noteData[1] * 10f * 100f * realCoefficient) * 10f);
 
-            gameMax = (int)Mathf.Floor(Mathf.Floor(noteData[1] * 10f * 100f * 1.3f) * 10f);
+            gameMax = GetGameMax(noteData[1]);
         }
+
+        public static int GetGameMax(float length) =>
+            (int)Mathf.Floor(Mathf.Floor(length * 10f * 100f * 1.3f) * 10f);
     }
 }
