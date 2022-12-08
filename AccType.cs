@@ -1,9 +1,7 @@
-﻿
-namespace HighscoreAccuracy
+﻿namespace HighscoreAccuracy;
+
+public enum AccType
 {
-    public enum AccType
-    {
-        BaseGame,
-        Real
-    }
+    BaseGame,
+    Real
 }
