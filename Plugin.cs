@@ -63,6 +63,7 @@ public class Plugin : BaseUnityPlugin
             {
                 if (float.TryParse(__instance.topscores[k].text, out float topScore))
                 {
+                    __instance.topscores[k].fontSize = 19;
                     string letter = showLetterRank.Value ? Utils.ScoreLetter(topScore / Utils.GetMaxScore(AccType.BaseGame, levelData)) : "";
                     float percent = topScore / Utils.GetMaxScore(accType.Value, levelData);
                     __instance.topscores[k].text = __instance.topscores[k].text + " " + (100 * percent).FormatDecimals() + "% " + letter;
