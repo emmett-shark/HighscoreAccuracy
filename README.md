@@ -6,6 +6,9 @@ Adds accuracy information to level select and when playing
 - [TrombSettings](https://github.com/HypersonicSharkz/TrombSettings) (optional)
 
 ## Changelog
+v1.1.5
+- Update font size for TC 1.09, trombsettings is now optional
+
 v1.1.4
 - Fix max score calculation for TC 1.088
 
