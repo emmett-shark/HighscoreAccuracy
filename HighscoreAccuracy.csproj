@@ -19,17 +19,11 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>$(TromboneChampDir)\BepInEx\core\0Harmony.dll</HintPath>
-    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>$(TromboneChampDir)\TromboneChamp_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="TrombLoader">
       <HintPath>$(TromboneChampDir)\BepInEx\plugins\TrombLoader.dll</HintPath>
-    </Reference>
-    <Reference Include="TrombSettings">
-      <HintPath>$(TromboneChampDir)\BepInEx\plugins\TrombSettings.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>$(TromboneChampDir)\TromboneChamp_Data\Managed\UnityEngine.dll</HintPath>
@@ -41,7 +35,18 @@
       <HintPath>$(TromboneChampDir)\TromboneChamp_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy $(TargetPath) &quot;$(TromboneChampDir)\BepInEx\plugins&quot;" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(TromboneChampDir)/BepInEx/plugins" />
+  </Target>
+
+  <Target Name="ThunderstoreZip" AfterTargets="Build">
+    <Delete Files="$(OutDir)thunderstore" />
+    <Delete Files="$(SolutionDir)$(ProjectName).zip" />
+    <Copy SourceFiles="icon.png" DestinationFolder="$(OutDir)thunderstore" />
+    <Copy SourceFiles="manifest.json" DestinationFolder="$(OutDir)thunderstore" />
+    <Copy SourceFiles="README.md" DestinationFolder="$(OutDir)thunderstore" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(OutDir)thunderstore" />
+    <ZipDirectory DestinationFile="$(SolutionDir)$(ProjectName).zip" SourceDirectory="$(OutDir)thunderstore" />
   </Target>
 </Project>
