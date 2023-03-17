@@ -19,11 +19,8 @@
     <PackageReference Include="TromboneChamp.TrombLoader" Version="2.0.0-rc.1" />
     <PackageReference Include="UnityEngine.Modules" Version="2019.3.11" IncludeAssets="compile" />
   </ItemGroup>
-  
+
   <ItemGroup>
-    <Reference Include="TrombSettings">
-      <HintPath>$(TromboneChampDir)\BepInEx\plugins\TrombSettings.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>$(TromboneChampDir)\TromboneChamp_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>

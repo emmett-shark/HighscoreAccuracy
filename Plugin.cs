@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BaboonAPI.Hooks.Tracks;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
@@ -98,7 +99,8 @@ public class Plugin : BaseUnityPlugin
         GameObject gameObject = GameObject.Find("ScoreShadow");
         if (showPBIngame.Value)
         {
-            int highscore = FindHighScore(GlobalVariables.chosen_track);
+            var score = TrackLookup.lookupScore(GlobalVariables.chosen_track);
+            int highscore = score != null ? score.Value.highScores.FirstOrDefault() : 0;
             if (highscore > 0)
             {
                 GameObject pb = Instantiate(gameObject, gameObject.transform.parent);
@@ -132,14 +134,6 @@ public class Plugin : BaseUnityPlugin
             ScoreCounter scoreCounter = Instantiate(gameObject, gameObject.transform.parent).AddComponent<ScoreCounter>();
             scoreCounter.Init(___leveldata);
         }
-    }
-
-    private static int FindHighScore(string trackRef)
-    {
-        string[] trackScores = GlobalVariables.localsave.data_trackscores
-            .Where(i => i != null && i[0] == trackRef)
-            .FirstOrDefault();
-        return trackScores == null ? 0 : int.Parse(trackScores[2]);
     }
 
     [HarmonyPatch(typeof(GameController), "getScoreAverage")]
