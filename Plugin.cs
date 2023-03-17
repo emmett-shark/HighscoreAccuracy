@@ -14,6 +14,7 @@ namespace HighscoreAccuracy;
 [HarmonyPatch]
 [BepInDependency("TrombSettings", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("TrombLoader")]
+[BepInDependency("ch.offbeatwit.baboonapi.plugin")]
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
 {
@@ -74,7 +75,6 @@ public class Plugin : BaseUnityPlugin
             {
                 Debug.LogError(e.Message);
             }
-
         }
     }
 
@@ -87,7 +87,7 @@ public class Plugin : BaseUnityPlugin
         float percent = (float)GlobalVariables.gameplay_scoretotal / max * 100;
         float prevPrecent = float.Parse(__instance.txt_prevhigh.text) / max * 100;
 
-        __instance.scorecountertext.text += " " + percent.FormatDecimals() + "%";
+        //__instance.txt_score.text += (" " + percent.FormatDecimals() + "%");
         __instance.txt_prevhigh.text += " " + prevPrecent.FormatDecimals() + "%";
     }
 
