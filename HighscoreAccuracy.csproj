@@ -5,29 +5,22 @@
     <AssemblyName>HighscoreAccuracy</AssemblyName>
     <BepInExPluginGuid>com.hypersonicsharkz.highscoreaccuracy</BepInExPluginGuid>
     <Product>Highscore Accuracy</Product>
-    <Version>1.1.5</Version>
+    <Version>1.1.6</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <TromboneChampDir>D:\SteamLibrary\steamapps\common\TromboneChamp</TromboneChampDir>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
     <PackageReference Include="BepInEx.Core" Version="5.*" />
     <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
+    <PackageReference Include="TromboneChamp.GameLibs" Version="1.9.5" />
+    <PackageReference Include="TromboneChamp.BaboonAPI" Version="2.2.1" />
+    <PackageReference Include="TromboneChamp.TrombLoader" Version="2.0.0-rc.1" />
     <PackageReference Include="UnityEngine.Modules" Version="2019.3.11" IncludeAssets="compile" />
   </ItemGroup>
   
   <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>$(TromboneChampDir)\BepInEx\core\0Harmony.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>$(TromboneChampDir)\TromboneChamp_Data\Managed\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="TrombLoader">
-      <HintPath>$(TromboneChampDir)\BepInEx\plugins\TrombLoader.dll</HintPath>
-    </Reference>
     <Reference Include="TrombSettings">
       <HintPath>$(TromboneChampDir)\BepInEx\plugins\TrombSettings.dll</HintPath>
     </Reference>
@@ -42,6 +35,6 @@
     </Reference>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy $(TargetPath) &quot;$(TromboneChampDir)\BepInEx\plugins&quot;" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(TromboneChampDir)/BepInEx/plugins" />
   </Target>
 </Project>

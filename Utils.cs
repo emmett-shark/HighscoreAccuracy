@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using SimpleJSON;
-using System.Runtime.Serialization.Formatters.Binary;
-using TrombLoader.Data;
-using TrombLoader.Helpers;
+using BaboonAPI.Hooks.Tracks;
 using UnityEngine;
 
 namespace HighscoreAccuracy;
@@ -39,39 +35,6 @@ public static class Utils
     public static int GetGameMax(float length) =>
         (int)Mathf.Floor(Mathf.Floor(length * 10f * 100f * 1.3f) * 10f);
 
-    public static List<float[]> GetLevelData(string trackRef)
-    {
-        string baseTmb = Application.streamingAssetsPath + "/leveldata/" + trackRef + ".tmb";
-        return !File.Exists(baseTmb)
-            ? GetCustomLevelData(trackRef)
-            : GetSavedLevel(baseTmb).savedleveldata;
-    }
-
-    private static List<float[]> GetCustomLevelData(string trackRef)
-    {
-        if (!Globals.ChartFolders.TryGetValue(trackRef, out string customChartPath))
-        {
-            Plugin.Log.LogWarning($"Could not find {trackRef}");
-            return new List<float[]>();
-        }
-        using (var streamReader = new StreamReader(customChartPath + "/song.tmb"))
-        {
-            string baseChartName = Application.streamingAssetsPath + "/leveldata/ballgame.tmb";
-            SavedLevel savedLevel = GetSavedLevel(baseChartName);
-            CustomSavedLevel customLevel = new CustomSavedLevel(savedLevel);
-            string jsonString = streamReader.ReadToEnd();
-            var jsonObject = JSON.Parse(jsonString);
-            customLevel.Deserialize(jsonObject);
-            return customLevel.savedleveldata;
-        }
-    }
-
-    private static SavedLevel GetSavedLevel(string baseTmb)
-    {
-        using (FileStream fileStream = File.Open(baseTmb, FileMode.Open))
-        {
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            return (SavedLevel)binaryFormatter.Deserialize(fileStream);
-        }
-    }
+    public static List<float[]> GetLevelData(string trackRef) =>
+        TrackLookup.lookup(trackRef).LoadChart().savedleveldata;
 }
