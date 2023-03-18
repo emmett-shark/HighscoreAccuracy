@@ -13,7 +13,6 @@ namespace HighscoreAccuracy;
 
 [HarmonyPatch]
 [BepInDependency("TrombSettings", BepInDependency.DependencyFlags.SoftDependency)]
-[BepInDependency("TrombLoader")]
 [BepInDependency("ch.offbeatwit.baboonapi.plugin")]
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin

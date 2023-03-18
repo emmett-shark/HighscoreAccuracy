@@ -2,7 +2,7 @@
 Adds accuracy information to level select and when playing
 
 ## Dependencies:
-- [TrombLoader](https://github.com/NyxTheShield/TrombLoader)
+- [BaboonAPI](https://github.com/tc-mods/BaboonAPI)
 - [TrombSettings](https://github.com/HypersonicSharkz/TrombSettings) (optional)
 
 ## Changelog
