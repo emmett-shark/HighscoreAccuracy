@@ -87,7 +87,7 @@ public class Plugin : BaseUnityPlugin
         float percent = (float)GlobalVariables.gameplay_scoretotal / max * 100;
         float prevPrecent = float.Parse(__instance.txt_prevhigh.text) / max * 100;
 
-        //__instance.txt_score.text += (" " + percent.FormatDecimals() + "%");
+        __instance.txt_score.text += " " + percent.FormatDecimals() + "%";
         __instance.txt_prevhigh.text += " " + prevPrecent.FormatDecimals() + "%";
     }
 

@@ -3,6 +3,7 @@
     "description": "Trombone Champ accuracy information",
     "version_number": "1.1.6",
     "dependencies": [
+      "TromboneChamps-TrombLoader-1.4.3",
       "BepInEx-BepInExPack_TromboneChamp-5.4.21"
     ],
     "website_url": "https://github.com/emmett-shark/HighscoreAccuracy/"
