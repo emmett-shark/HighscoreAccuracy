@@ -5,7 +5,7 @@
     <AssemblyName>HighscoreAccuracy</AssemblyName>
     <BepInExPluginGuid>com.hypersonicsharkz.highscoreaccuracy</BepInExPluginGuid>
     <Product>Highscore Accuracy</Product>
-    <Version>1.1.6</Version>
+    <Version>1.2.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <TromboneChampDir>D:\SteamLibrary\steamapps\common\TromboneChamp</TromboneChampDir>
