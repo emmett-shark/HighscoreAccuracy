@@ -113,6 +113,7 @@ public class Plugin : BaseUnityPlugin
                 var shadowText = pb.GetComponent<Text>();
 
                 float max = Utils.GetMaxScore(accType.Value, ___leveldata);
+                //Log.LogDebug($"Max score: {max}");
                 float percent = highscore / max * 100;
 
                 foregroundText.text = "PB: " + percent.FormatDecimals() + "%";

@@ -27,13 +27,13 @@ public static class Utils
 
     public static int GetRealMax(float length, int noteIndex)
     {
-        float champbonus = noteIndex > 23 ? 1.5f : 0;
-        float realCoefficient = (Math.Min(noteIndex, 10) + champbonus) * 0.1f + 1f;
-        return (int)Mathf.Floor(Mathf.Floor(length * 10f * 100f * realCoefficient) * 10f);
+        var champbonus = noteIndex > 23 ? 1.5m : 0m;
+        var realCoefficient = (Math.Min(noteIndex, 10) + champbonus) * 0.1m + 1;
+        return (int)Math.Floor((decimal)length * 10 * 100 * realCoefficient) * 10;
     }
 
     public static int GetGameMax(float length) =>
-        (int)Mathf.Floor(Mathf.Floor(length * 10f * 100f * 1.3f) * 10f);
+        (int)Mathf.Floor(Mathf.Floor(length * 10f * 100f * 1.315f) * 10f);
 
     public static List<float[]> GetLevelData(string trackRef) =>
         TrackLookup.lookup(trackRef).LoadChart().savedleveldata;

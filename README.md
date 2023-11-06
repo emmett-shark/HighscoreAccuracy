@@ -7,6 +7,7 @@ Adds accuracy information to level select and when playing
 
 ## Changelog
 v1.2.1
+- Fix S rank calculation and true max %
 - Make stuff public just for Electro
 
 v1.2.0
