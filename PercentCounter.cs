@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace HighscoreAccuracy;
 
-internal class PercentCounter : MonoBehaviour
+public class PercentCounter : MonoBehaviour
 {
     public static Action<int, int> scoreChanged;
 

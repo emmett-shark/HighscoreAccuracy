@@ -6,6 +6,9 @@ Adds accuracy information to level select and when playing
 - [TrombSettings](https://github.com/HypersonicSharkz/TrombSettings) (optional)
 
 ## Changelog
+v1.2.1
+- Make stuff public just for Electro
+
 v1.2.0
 - Trombloader v2 compatibility
 

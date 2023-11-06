@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace HighscoreAccuracy;
 
-internal class ScoreCounter : MonoBehaviour
+public class ScoreCounter : MonoBehaviour
 {
     public static Action<int, int> scoreChanged;
 
