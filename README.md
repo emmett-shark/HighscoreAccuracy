@@ -3,9 +3,11 @@ Adds accuracy information to level select and when playing
 
 ## Dependencies:
 - [BaboonAPI](https://github.com/tc-mods/BaboonAPI)
-- [TrombSettings](https://github.com/HypersonicSharkz/TrombSettings) (optional)
 
 ## Changelog
+v1.3.1
+- Don't use TrombSettings at all
+
 v1.3.0
 - Add increasing and decreasing accuracy options
 - Add optional toottally settings

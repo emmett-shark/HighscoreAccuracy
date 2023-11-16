@@ -12,7 +12,6 @@ using UnityEngine.UI;
 namespace HighscoreAccuracy;
 
 [HarmonyPatch]
-[BepInDependency("TrombSettings", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("ch.offbeatwit.baboonapi.plugin")]
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
@@ -39,17 +38,6 @@ public class Plugin : BaseUnityPlugin
         showScoreIngame = Config.Bind("General", "Show score in track", true);
         showPBIngame = Config.Bind("General", "Show PB in track", true);
 
-        object settings = OptionalTrombSettings.GetConfigPage("Highscore Acc");
-        if (settings != null)
-        {
-            OptionalTrombSettings.Add(settings, showLetterRank);
-            OptionalTrombSettings.Add(settings, accType);
-            OptionalTrombSettings.AddSlider(settings, 0, 4, 1, true, decimals);
-
-            OptionalTrombSettings.Add(settings, showAccIngame);
-            OptionalTrombSettings.Add(settings, showScoreIngame);
-            OptionalTrombSettings.Add(settings, showPBIngame);
-        }
         object ttSettings = OptionalTootTallySettings.AddNewPage("Highscore Accuracy", "Highscore Accuracy", 40, new Color(.1f, .1f, .1f, .1f));
         if (ttSettings != null)
         {
