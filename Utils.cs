@@ -43,9 +43,3 @@ public static class Utils
     public static List<float[]> GetLevelData(string trackRef) =>
         TrackLookup.lookup(trackRef).LoadChart().savedleveldata;
 }
-
-public static class TypeExtensions
-{
-    // From https://stackoverflow.com/a/55457150
-    public static PropertyInfo GetIndexer(this Type type, params Type[] arguments) => type.GetProperties().First(x => x.GetIndexParameters().Select(y => y.ParameterType).SequenceEqual(arguments));
-}

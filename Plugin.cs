@@ -20,10 +20,9 @@ public class Plugin : BaseUnityPlugin
     internal static ManualLogSource Log;
 
     internal static ConfigEntry<AccType> accType;
-    internal static ConfigEntry<bool> showLetterRank;
     internal static ConfigEntry<float> decimals;
     internal static ConfigEntry<bool> showAccIngame;
-    internal static ConfigEntry<bool> showScoreIngame;
+    internal static ConfigEntry<bool> showLetterIngame;
     internal static ConfigEntry<bool> showPBIngame;
 
     private void Awake()
@@ -32,10 +31,9 @@ public class Plugin : BaseUnityPlugin
         Log = Logger;
 
         accType = Config.Bind("General", "Acc Type", AccType.BaseGame);
-        showLetterRank = Config.Bind("General", "Show Letters", true);
         decimals = Config.Bind("General", "Decimal Places", 2f);
         showAccIngame = Config.Bind("General", "Show acc in track", true);
-        showScoreIngame = Config.Bind("General", "Show score in track", true);
+        showLetterIngame = Config.Bind("General", "Show letter rank in track", false);
         showPBIngame = Config.Bind("General", "Show PB in track", true);
 
         object ttSettings = OptionalTootTallySettings.AddNewPage("Highscore Accuracy", "Highscore Accuracy", 40, new Color(.1f, .1f, .1f, .1f));
@@ -44,10 +42,8 @@ public class Plugin : BaseUnityPlugin
             OptionalTootTallySettings.AddLabel(ttSettings, "Accuracy Type *", 24, TMPro.TextAlignmentOptions.BottomLeft);
             OptionalTootTallySettings.AddDropdown(ttSettings, "Accuracy Type", accType);
             OptionalTootTallySettings.AddSlider(ttSettings, "Decimal Places", 0, 4, decimals, true);
-
-            OptionalTootTallySettings.AddToggle(ttSettings, "Show Letter Rank Ingame", showLetterRank);
             OptionalTootTallySettings.AddToggle(ttSettings, "Show Acc Ingame", showAccIngame);
-            OptionalTootTallySettings.AddToggle(ttSettings, "Show Score Ingame", showScoreIngame);
+            OptionalTootTallySettings.AddToggle(ttSettings, "Show Letter Rank Ingame", showLetterIngame);
             OptionalTootTallySettings.AddToggle(ttSettings, "Show PB Ingame", showPBIngame);
             OptionalTootTallySettings.AddLabel(ttSettings, @"* Accuracy Type:
 - Base Game: uses the internal calculations for the letter where >100% = S.
@@ -76,7 +72,7 @@ You can still update accuracy type through the config file, as usual."
                 if (float.TryParse(__instance.topscores[k].text, out float topScore))
                 {
                     __instance.topscores[k].fontSize = 19;
-                    string letter = showLetterRank.Value ? Utils.ScoreLetter(topScore / Utils.GetMaxScore(AccType.BaseGame, levelData)) : "";
+                    string letter = Utils.ScoreLetter(topScore / Utils.GetMaxScore(AccType.BaseGame, levelData));
                     float percent = topScore / Utils.GetMaxScore(accType.Value, levelData);
                     __instance.topscores[k].text = __instance.topscores[k].text + " " + (100 * percent).FormatDecimals() + "% " + letter;
                 }
@@ -140,7 +136,7 @@ You can still update accuracy type through the config file, as usual."
             percentCounter.Init(___leveldata, pbValue);
         }
 
-        if (showScoreIngame.Value)
+        if (showLetterIngame.Value)
         {
             ScoreCounter scoreCounter = Instantiate(gameObject, gameObject.transform.parent).AddComponent<ScoreCounter>();
             scoreCounter.Init(___leveldata);
@@ -154,7 +150,7 @@ You can still update accuracy type through the config file, as usual."
         {
             PercentCounter.scoreChanged(___totalscore, ___currentnoteindex);
         }
-        if (showScoreIngame.Value)
+        if (showLetterIngame.Value)
         {
             ScoreCounter.scoreChanged(___totalscore, ___currentnoteindex);
         }

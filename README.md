@@ -5,6 +5,9 @@ Adds accuracy information to level select and when playing
 - [BaboonAPI](https://github.com/tc-mods/BaboonAPI)
 
 ## Changelog
+v1.3.2
+- Made settings words make more sense
+
 v1.3.1
 - Don't use TrombSettings at all
 
