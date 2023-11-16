@@ -22,7 +22,7 @@ public class Plugin : BaseUnityPlugin
 
     internal static ConfigEntry<AccType> accType;
     internal static ConfigEntry<bool> showLetterRank;
-    internal static ConfigEntry<int> decimals;
+    internal static ConfigEntry<float> decimals;
     internal static ConfigEntry<bool> showAccIngame;
     internal static ConfigEntry<bool> showScoreIngame;
     internal static ConfigEntry<bool> showPBIngame;
@@ -34,9 +34,9 @@ public class Plugin : BaseUnityPlugin
 
         accType = Config.Bind("General", "Acc Type", AccType.BaseGame);
         showLetterRank = Config.Bind("General", "Show Letters", true);
-        decimals = Config.Bind("General", "Decimal Places", 2);
+        decimals = Config.Bind("General", "Decimal Places", 2f);
         showAccIngame = Config.Bind("General", "Show acc in track", true);
-        showScoreIngame = Config.Bind("General", "Show score in track", false);
+        showScoreIngame = Config.Bind("General", "Show score in track", true);
         showPBIngame = Config.Bind("General", "Show PB in track", true);
 
         object settings = OptionalTrombSettings.GetConfigPage("Highscore Acc");
@@ -49,6 +49,29 @@ public class Plugin : BaseUnityPlugin
             OptionalTrombSettings.Add(settings, showAccIngame);
             OptionalTrombSettings.Add(settings, showScoreIngame);
             OptionalTrombSettings.Add(settings, showPBIngame);
+        }
+        object ttSettings = OptionalTootTallySettings.AddNewPage("Highscore Accuracy", "Highscore Accuracy", 40, new Color(.1f, .1f, .1f, .1f));
+        if (ttSettings != null)
+        {
+            OptionalTootTallySettings.AddLabel(ttSettings, "Accuracy Type *", 24, TMPro.TextAlignmentOptions.BottomLeft);
+            OptionalTootTallySettings.AddDropdown(ttSettings, "Accuracy Type", accType);
+            OptionalTootTallySettings.AddSlider(ttSettings, "Decimal Places", 0, 4, decimals, true);
+
+            OptionalTootTallySettings.AddToggle(ttSettings, "Show Letter Rank Ingame", showLetterRank);
+            OptionalTootTallySettings.AddToggle(ttSettings, "Show Acc Ingame", showAccIngame);
+            OptionalTootTallySettings.AddToggle(ttSettings, "Show Score Ingame", showScoreIngame);
+            OptionalTootTallySettings.AddToggle(ttSettings, "Show PB Ingame", showPBIngame);
+            OptionalTootTallySettings.AddLabel(ttSettings, @"* Accuracy Type:
+- Base Game: uses the internal calculations for the letter where >100% = S.
+- Real: calculates the actual maximum score for a track.
+- Increasing: Uses real accuracy, but your % will always increase or stay the same.
+For example, ignoring multipliers, perfectly hitting the first note of a 100 note song will give you 1%.
+- Decreasing: Uses real accuracy, but your % will always decrease or stay the same.
+For example, ignoring multipliers, completely missing the first note of a 100 note song will give you 99%.
+
+If the dropdown isn't showing up, you need an updated TootTally.
+You can still update accuracy type through the config file, as usual."
+                , 24, TMPro.TextAlignmentOptions.TopLeft);
         }
 
         new Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
@@ -113,7 +136,7 @@ public class Plugin : BaseUnityPlugin
                 var shadowText = pb.GetComponent<Text>();
 
                 float max = Utils.GetMaxScore(accType.Value, ___leveldata);
-                //Log.LogDebug($"Max score: {max}");
+                //Log.LogDebug($"{GlobalVariables.chosen_track} max score: {max}");
                 float percent = highscore / max * 100;
 
                 foregroundText.text = "PB: " + percent.FormatDecimals() + "%";

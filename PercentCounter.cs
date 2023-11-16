@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,13 +14,31 @@ public class PercentCounter : MonoBehaviour
     private Text foregroundText;
     private Text shadowText;
     private float pb;
-    private float maxScore = 0;
+
+    private int maxScore;
+    private int[] scoreLeftover;
+    private int[] scoreSums;
 
     public void Init(List<float[]> _leveldata, float _pb)
     {
         pb = _pb;
         leveldata = _leveldata;
         transform.localScale = Vector3.one;
+
+        var scorePerNote = Utils.GetMaxScores(Plugin.accType.Value, leveldata).ToArray();
+        scoreSums = new int[scorePerNote.Length];
+        for (int i = 0; i < scorePerNote.Length; i++)
+        {
+            maxScore += scorePerNote[i];
+            scoreSums[i] = maxScore;
+        }
+        int maxScoreLeftOver = maxScore;
+        scoreLeftover = new int[scorePerNote.Length];
+        for (int i = 0; i < scorePerNote.Length; i++)
+        {
+            maxScoreLeftOver -= scorePerNote[i];
+            scoreLeftover[i] = maxScoreLeftOver;
+        }
     }
 
     void Start()
@@ -33,7 +52,6 @@ public class PercentCounter : MonoBehaviour
         RectTransform rect = GetComponent<RectTransform>();
         rect.anchoredPosition = new Vector2(rect.anchoredPosition.x - 50f, rect.anchoredPosition.y - 25f);
 
-
         scoreChanged = (Action<int, int>)Delegate.Combine(scoreChanged, new Action<int, int>(OnScoreChanged));
     }
 
@@ -44,8 +62,7 @@ public class PercentCounter : MonoBehaviour
 
     internal void OnScoreChanged(int totalScore, int noteIndex)
     {
-        maxScore += Utils.GetMaxScore(Plugin.accType.Value, leveldata[noteIndex][1], noteIndex);
-        float percent = totalScore / maxScore * 100;
+        float percent = GetPercent(totalScore, noteIndex);
         string percentText = percent.FormatDecimals() + "%";
         foregroundText.text = percentText;
         shadowText.text = percentText;
@@ -63,4 +80,12 @@ public class PercentCounter : MonoBehaviour
             foregroundText.color = Color.yellow;
         }
     }
+
+    private float GetPercent(int totalScore, int noteIndex) =>
+        Plugin.accType.Value switch
+        {
+            AccType.Increasing => (float)totalScore / maxScore * 100,
+            AccType.Decreasing => (float)(totalScore + scoreLeftover[noteIndex]) / maxScore * 100,
+            _ => (float)totalScore / scoreSums[noteIndex] * 100,
+        };
 }

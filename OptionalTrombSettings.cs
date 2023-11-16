@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Linq;
-using System.Reflection;
 using BepInEx.Configuration;
-
-// Credit to CripsyKevin#4931 on the modding discord for this code
 
 namespace HighscoreAccuracy;
 
+// Credit to CripsyKevin#4931 on the modding discord for this code
 public class OptionalTrombSettings
 {
     private static bool? _enabled;
@@ -80,10 +77,4 @@ public class OptionalTrombSettings
         var addFn = page.GetType().GetMethod("Add", new Type[] { typeof(ConfigEntryBase) });
         addFn.Invoke(page, new object[] { entry });
     }
-}
-
-internal static class TypeExtensions
-{
-    // From https://stackoverflow.com/a/55457150
-    public static PropertyInfo GetIndexer(this Type type, params Type[] arguments) => type.GetProperties().First(x => x.GetIndexParameters().Select(y => y.ParameterType).SequenceEqual(arguments));
 }

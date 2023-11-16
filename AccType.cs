@@ -3,5 +3,7 @@
 public enum AccType
 {
     BaseGame,
-    Real
+    Real,
+    Decreasing,
+    Increasing,
 }

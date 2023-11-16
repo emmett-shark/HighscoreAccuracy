@@ -6,6 +6,12 @@ Adds accuracy information to level select and when playing
 - [TrombSettings](https://github.com/HypersonicSharkz/TrombSettings) (optional)
 
 ## Changelog
+v1.3.0
+- Add increasing and decreasing accuracy options
+- Add optional toottally settings
+- Fix wrong % on skipping through replays
+- Fix max score calc (again)
+
 v1.2.1
 - Fix S rank calculation and true max %
 - Make stuff public just for Electro
