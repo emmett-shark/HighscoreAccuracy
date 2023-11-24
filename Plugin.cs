@@ -53,7 +53,7 @@ For example, ignoring multipliers, perfectly hitting the first note of a 100 not
 - Decreasing: Uses real accuracy, but your % will always decrease or stay the same.
 For example, ignoring multipliers, completely missing the first note of a 100 note song will give you 99%.
 
-If the dropdown isn't showing up, you need an updated TootTally.
+If the dropdown isn't showing up, update TootTally.
 You can still update accuracy type through the config file, as usual."
                 , 24, TMPro.TextAlignmentOptions.TopLeft);
         }
@@ -85,6 +85,7 @@ You can still update accuracy type through the config file, as usual."
     }
 
     [HarmonyPatch(typeof(PointSceneController), "doCoins")]
+    [HarmonyPriority(Priority.High)]
     private static void Postfix(PointSceneController __instance)
     {
         string trackRef = GlobalVariables.chosen_track_data.trackref;

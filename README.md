@@ -5,6 +5,10 @@ Adds accuracy information to level select and when playing
 - [BaboonAPI](https://github.com/tc-mods/BaboonAPI)
 
 ## Changelog
+v1.3.3
+- Fix for <= 0 length notes
+- Priority higher for showing % in score screen
+
 v1.3.2
 - Made settings words make more sense
 

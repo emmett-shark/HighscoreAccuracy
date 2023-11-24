@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using BaboonAPI.Hooks.Tracks;
 using UnityEngine;
 
@@ -34,11 +33,13 @@ public static class Utils
     {
         double champbonus = noteIndex > 23 ? 1.5 : 0;
         double realCoefficient = (Math.Min(noteIndex, 10) + champbonus) * 0.100000001490116 + 1.0;
+        length = GetLength(length);
         return (int)(Mathf.Floor((float)((double)length * 10.0 * 100 * realCoefficient)) * 10f);
     }
 
-    public static int GetGameMax(float length) =>
-        (int)Mathf.Floor(Mathf.Floor(length * 10f * 100f * 1.315f) * 10f);
+    public static int GetGameMax(float length) => (int)Mathf.Floor(Mathf.Floor(GetLength(length) * 10f * 100f * 1.315f) * 10f);
+
+    public static float GetLength(float length) => length <= 0f ? 0.015f : length;
 
     public static List<float[]> GetLevelData(string trackRef) =>
         TrackLookup.lookup(trackRef).LoadChart().savedleveldata;
