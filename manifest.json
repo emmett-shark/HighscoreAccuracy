@@ -1,7 +1,7 @@
 {
     "name": "HighscoreAccuracy",
     "description": "Trombone Champ accuracy information",
-    "version_number": "1.3.2",
+    "version_number": "1.3.3",
     "dependencies": [
       "BepInEx-BepInExPack_TromboneChamp-5.4.21",
       "TromboneChamps-BaboonAPI-2.2.1"
