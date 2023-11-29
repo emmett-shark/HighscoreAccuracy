@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using BepInEx.Configuration;
 using UnityEngine;
 using UnityEngine.Events;
@@ -8,27 +7,15 @@ namespace HighscoreAccuracy;
 
 public class OptionalTootTallySettings
 {
-    private static bool? _enabled;
-
-    public static bool enabled
-    {
-        get
-        {
-            if (_enabled == null)
-                _enabled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("TootTally");
-            return (bool)_enabled;
-        }
-    }
-
     public static object AddNewPage(string pageName, string headerText, float elementSpacing, Color bgColor)
     {
         try
         {
             Type settingsPage = null;
-            settingsPage = Type.GetType("TootTally.Utils.TootTallySettings.TootTallySettingsManager, TootTally");
+            settingsPage = Type.GetType("TootTallySettings.TootTallySettingsManager, TootTallySettings");
             if (settingsPage == null)
             {
-                Plugin.Log.LogDebug("TootTally not found.");
+                Plugin.Log.LogDebug("TootTallySettings not found.");
                 return null;
             }
             var addPageFn = settingsPage.GetMethod("AddNewPage", new Type[] { typeof(string), typeof(string), typeof(float), typeof(Color) });
@@ -36,7 +23,7 @@ public class OptionalTootTallySettings
         }
         catch (Exception e)
         {
-            Plugin.Log.LogError("Exception trying to get config page. Reporting TootTally as not found.");
+            Plugin.Log.LogError("Exception trying to get config page. Reporting TootTallySettings as not found.");
             Plugin.Log.LogError(e.Message);
             Plugin.Log.LogError(e.StackTrace);
             return null;

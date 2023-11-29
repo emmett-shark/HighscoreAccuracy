@@ -13,6 +13,7 @@ namespace HighscoreAccuracy;
 
 [HarmonyPatch]
 [BepInDependency("ch.offbeatwit.baboonapi.plugin")]
+[BepInDependency("TootTallySettings", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
 {
@@ -48,10 +49,10 @@ public class Plugin : BaseUnityPlugin
             OptionalTootTallySettings.AddLabel(ttSettings, @"* Accuracy Type:
 - Base Game: uses the internal calculations for the letter where >100% = S.
 - Real: calculates the actual maximum score for a track.
-- Increasing: Uses real accuracy, but your % will always increase or stay the same.
-For example, ignoring multipliers, perfectly hitting the first note of a 100 note song will give you 1%.
 - Decreasing: Uses real accuracy, but your % will always decrease or stay the same.
 For example, ignoring multipliers, completely missing the first note of a 100 note song will give you 99%.
+- Increasing: Uses real accuracy, but your % will always increase or stay the same.
+For example, ignoring multipliers, perfectly hitting the first note of a 100 note song will give you 1%.
 
 If the dropdown isn't showing up, update TootTally.
 You can still update accuracy type through the config file, as usual."

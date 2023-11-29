@@ -28,13 +28,10 @@ public class ScoreCounter : MonoBehaviour
         shadowText.text = "S";
         RectTransform rect = GetComponent<RectTransform>();
         rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y - 25f);
-        scoreChanged = (Action<int, int>)Delegate.Combine(scoreChanged, new Action<int, int>(OnScoreChanged));
+        scoreChanged += OnScoreChanged;
     }
 
-    void OnDestroy()
-    {
-        scoreChanged = (Action<int, int>)Delegate.Remove(scoreChanged, new Action<int, int>(OnScoreChanged));
-    }
+    void OnDestroy() => scoreChanged -= OnScoreChanged;
 
     internal void OnScoreChanged(int totalScore, int noteIndex)
     {

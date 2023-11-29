@@ -5,6 +5,9 @@ Adds accuracy information to level select and when playing
 - [BaboonAPI](https://github.com/tc-mods/BaboonAPI)
 
 ## Changelog
+v1.3.4
+- Use new toottally settings
+
 v1.3.3
 - Fix for <= 0 length notes
 - Priority higher for showing % in score screen
@@ -61,6 +64,10 @@ v1.1.0
   - Real
     - Calculates the actual maximum score for a track, here an S ≈ 60%
     - A 100% on this is practically impossible just because of how the game calculates scores
+  - Decreasing: Uses real accuracy, but your % will always decrease or stay the same.
+    - For example, ignoring multipliers, completely missing the first note of a 100 note song will give you 99%.
+  - Increasing: Uses real accuracy, but your % will always increase or stay the same.
+    - For example, ignoring multipliers, perfectly hitting the first note of a 100 note song will give you 1%.
 - Most of the features can be enabled/disabled in the settings
 
 <img src="https://i.imgur.com/LWLTWFz.jpg"/>

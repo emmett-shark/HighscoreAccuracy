@@ -52,13 +52,10 @@ public class PercentCounter : MonoBehaviour
         RectTransform rect = GetComponent<RectTransform>();
         rect.anchoredPosition = new Vector2(rect.anchoredPosition.x - 50f, rect.anchoredPosition.y - 25f);
 
-        scoreChanged = (Action<int, int>)Delegate.Combine(scoreChanged, new Action<int, int>(OnScoreChanged));
+        scoreChanged += OnScoreChanged;
     }
 
-    void OnDestroy()
-    {
-        scoreChanged = (Action<int, int>)Delegate.Remove(scoreChanged, new Action<int, int>(OnScoreChanged));
-    }
+    void OnDestroy() => scoreChanged -= OnScoreChanged;
 
     internal void OnScoreChanged(int totalScore, int noteIndex)
     {
