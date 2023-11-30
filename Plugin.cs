@@ -6,6 +6,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
+using TootTallyCore.Settings;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,7 +14,7 @@ namespace HighscoreAccuracy;
 
 [HarmonyPatch]
 [BepInDependency("ch.offbeatwit.baboonapi.plugin")]
-[BepInDependency("TootTallySettings", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("TootTallyCore")]
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
 {
@@ -37,16 +38,28 @@ public class Plugin : BaseUnityPlugin
         showLetterIngame = Config.Bind("General", "Show letter rank in track", false);
         showPBIngame = Config.Bind("General", "Show PB in track", true);
 
-        object ttSettings = OptionalTootTallySettings.AddNewPage("Highscore Accuracy", "Highscore Accuracy", 40, new Color(.1f, .1f, .1f, .1f));
-        if (ttSettings != null)
+        if (TootTallySettingsManager.API != null)
         {
-            OptionalTootTallySettings.AddLabel(ttSettings, "Accuracy Type *", 24, TMPro.TextAlignmentOptions.BottomLeft);
-            OptionalTootTallySettings.AddDropdown(ttSettings, "Accuracy Type", accType);
-            OptionalTootTallySettings.AddSlider(ttSettings, "Decimal Places", 0, 4, decimals, true);
-            OptionalTootTallySettings.AddToggle(ttSettings, "Show Acc Ingame", showAccIngame);
-            OptionalTootTallySettings.AddToggle(ttSettings, "Show Letter Rank Ingame", showLetterIngame);
-            OptionalTootTallySettings.AddToggle(ttSettings, "Show PB Ingame", showPBIngame);
-            OptionalTootTallySettings.AddLabel(ttSettings, @"* Accuracy Type:
+            Settings();
+        } else
+        {
+            TootTallySettingsManager.APIRegistered += api => Settings();
+        }
+
+        new Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
+    }
+
+    private void Settings()
+    {
+        var ttSettings = TootTallySettingsManager.API.AddNewPage("Highscore Accuracy", "Highscore Accuracy", 40, new Color(.1f, .1f, .1f, .1f));
+
+        ttSettings.AddLabel("Accuracy Type Label", "Accuracy Type *", 24, TMPro.FontStyles.Normal, TMPro.TextAlignmentOptions.BottomLeft);
+        ttSettings.AddDropdown("Accuracy Type", accType);
+        ttSettings.AddSlider("Decimal Places", 0, 4, decimals, true);
+        ttSettings.AddToggle("Show Acc Ingame", showAccIngame);
+        ttSettings.AddToggle("Show Letter Rank Ingame", showLetterIngame);
+        ttSettings.AddToggle("Show PB Ingame", showPBIngame);
+        ttSettings.AddLabel("Accuracy Type Description", @"* Accuracy Type:
 - Base Game: uses the internal calculations for the letter where >100% = S.
 - Real: calculates the actual maximum score for a track.
 - Decreasing: Uses real accuracy, but your % will always decrease or stay the same.
@@ -56,10 +69,7 @@ For example, ignoring multipliers, perfectly hitting the first note of a 100 not
 
 If the dropdown isn't showing up, update TootTally.
 You can still update accuracy type through the config file, as usual."
-                , 24, TMPro.TextAlignmentOptions.TopLeft);
-        }
-
-        new Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
+            , 24, TMPro.FontStyles.Normal, TMPro.TextAlignmentOptions.TopLeft);
     }
 
     [HarmonyPatch(typeof(LevelSelectController), "populateScores")]
