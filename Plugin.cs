@@ -25,6 +25,7 @@ public class Plugin : BaseUnityPlugin
     internal static ConfigEntry<bool> showAccIngame;
     internal static ConfigEntry<bool> showLetterIngame;
     internal static ConfigEntry<bool> showPBIngame;
+    internal static ConfigEntry<bool> animateCounter;
 
     private void Awake()
     {
@@ -36,6 +37,7 @@ public class Plugin : BaseUnityPlugin
         showAccIngame = Config.Bind("General", "Show acc in track", true);
         showLetterIngame = Config.Bind("General", "Show letter rank in track", false);
         showPBIngame = Config.Bind("General", "Show PB in track", true);
+        animateCounter = Config.Bind("General", "Gradually increase the accuracy.", false);
 
         object ttSettings = OptionalTootTallySettings.AddNewPage("Highscore Accuracy", "Highscore Accuracy", 40, new Color(.1f, .1f, .1f, .1f));
         if (ttSettings != null)
@@ -46,6 +48,7 @@ public class Plugin : BaseUnityPlugin
             OptionalTootTallySettings.AddToggle(ttSettings, "Show Acc Ingame", showAccIngame);
             OptionalTootTallySettings.AddToggle(ttSettings, "Show Letter Rank Ingame", showLetterIngame);
             OptionalTootTallySettings.AddToggle(ttSettings, "Show PB Ingame", showPBIngame);
+            OptionalTootTallySettings.AddToggle(ttSettings, "Animate Counter", animateCounter);
             OptionalTootTallySettings.AddLabel(ttSettings, @"* Accuracy Type:
 - Base Game: uses the internal calculations for the letter where >100% = S.
 - Real: calculates the actual maximum score for a track.
