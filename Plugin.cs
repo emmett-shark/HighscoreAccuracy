@@ -88,6 +88,12 @@ You can still update accuracy type through the config file, as usual."
         }
     }
 
+    [HarmonyPatch(typeof(GameController), nameof(GameController.tallyScore))]
+    private static void Prefix(ref int ___previous_high_score)
+    {
+        ___previous_high_score = int.MaxValue;
+    }
+
     [HarmonyPatch(typeof(PointSceneController), "doCoins")]
     [HarmonyPriority(Priority.High)]
     private static void Postfix(PointSceneController __instance)
