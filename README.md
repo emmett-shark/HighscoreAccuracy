@@ -5,6 +5,9 @@ Adds accuracy information to level select and when playing
 - [BaboonAPI](https://github.com/tc-mods/BaboonAPI)
 
 ## Changelog
+v1.3.5
+- Fix for TC 1.18B
+
 v1.3.4
 - Use new toottally settings
 

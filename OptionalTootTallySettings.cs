@@ -11,8 +11,7 @@ public class OptionalTootTallySettings
     {
         try
         {
-            Type settingsPage = null;
-            settingsPage = Type.GetType("TootTallySettings.TootTallySettingsManager, TootTallySettings");
+            Type settingsPage = Type.GetType("TootTallySettings.TootTallySettingsManager, TootTallySettings");
             if (settingsPage == null)
             {
                 Plugin.Log.LogDebug("TootTallySettings not found.");
