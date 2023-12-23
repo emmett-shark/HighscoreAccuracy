@@ -13,6 +13,7 @@ namespace HighscoreAccuracy;
 
 [HarmonyPatch]
 [BepInDependency("ch.offbeatwit.baboonapi.plugin")]
+[BepInDependency("TrombLoader")]
 [BepInDependency("TootTallySettings", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
@@ -32,7 +33,7 @@ public class Plugin : BaseUnityPlugin
         Instance = this;
         Log = Logger;
 
-        accType = Config.Bind("General", "Acc Type", AccType.BaseGame);
+        accType = Config.Bind("General", "Acc Type", AccType.Real);
         decimals = Config.Bind("General", "Decimal Places", 2f);
         showAccIngame = Config.Bind("General", "Show acc in track", true);
         showLetterIngame = Config.Bind("General", "Show letter rank in track", false);
@@ -68,7 +69,9 @@ You can still update accuracy type through the config file, as usual."
     [HarmonyPatch(typeof(LevelSelectController), "populateScores")]
     private static void Postfix(LevelSelectController __instance, int ___songindex, List<SingleTrackData> ___alltrackslist)
     {
-        var levelData = Utils.GetLevelData(___alltrackslist[___songindex].trackref);
+        string trackRef = ___alltrackslist[___songindex].trackref;
+        if (Utils.SkipHighscore(trackRef)) return;
+        var levelData = Utils.GetLevelData(trackRef);
         for (int k = 0; k < 5; k++)
         {
             try
@@ -99,6 +102,7 @@ You can still update accuracy type through the config file, as usual."
     private static void Postfix(PointSceneController __instance)
     {
         string trackRef = GlobalVariables.chosen_track_data.trackref;
+        if (Utils.SkipHighscore(trackRef)) return;
         List<float[]> levelData = Utils.GetLevelData(trackRef);
         int max = Utils.GetMaxScore(accType.Value, levelData);
         float percent = (float)GlobalVariables.gameplay_scoretotal / max * 100;

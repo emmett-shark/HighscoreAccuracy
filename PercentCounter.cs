@@ -87,9 +87,6 @@ public class PercentCounter : MonoBehaviour
     {
         float percent = GetPercent(totalScore, noteIndex);
 
-
-
-
         if (Plugin.animateCounter.Value)
         {
             timeSinceLastScore = 0;

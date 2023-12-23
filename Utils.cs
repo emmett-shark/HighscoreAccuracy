@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using BaboonAPI.Hooks.Tracks;
+using TrombLoader.CustomTracks;
+using TrombLoader.Helpers;
 using UnityEngine;
 
 namespace HighscoreAccuracy;
@@ -43,4 +46,10 @@ public static class Utils
 
     public static List<float[]> GetLevelData(string trackRef) =>
         TrackLookup.lookup(trackRef).LoadChart().savedleveldata;
+
+    public static bool SkipHighscore(string trackRef)
+    {
+        return TrackLookup.lookup(trackRef) is CustomTrack ct
+            && new FileInfo(Path.Combine(ct.folderPath, Globals.defaultChartName)).Length > 2_000_000;
+    }
 }

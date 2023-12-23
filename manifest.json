@@ -1,10 +1,11 @@
 {
     "name": "HighscoreAccuracy",
     "description": "Trombone Champ accuracy information",
-    "version_number": "1.3.5",
+    "version_number": "1.3.6",
     "dependencies": [
       "BepInEx-BepInExPack_TromboneChamp-5.4.21",
-      "TromboneChamps-BaboonAPI-2.2.1"
+      "TromboneChamps-BaboonAPI-2.5.0",
+      "TromboneChamps-TrombLoader-2.2.1"
     ],
     "website_url": "https://github.com/emmett-shark/HighscoreAccuracy/"
   }
