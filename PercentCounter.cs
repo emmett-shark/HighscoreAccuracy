@@ -13,18 +13,18 @@ public class PercentCounter : MonoBehaviour
     private List<float[]> leveldata;
     private Text foregroundText;
     private Text shadowText;
-    private float pb;
+    private decimal pb;
 
     private int maxScore;
     private int[] scoreLeftover;
     private int[] scoreSums;
 
-    private float targetAcc;
-    private float currentAcc;
+    private decimal targetAcc;
+    private decimal currentAcc;
     private float updateTimer;
     private float timeSinceLastScore;
 
-    public void Init(List<float[]> _leveldata, float _pb)
+    public void Init(List<float[]> _leveldata, decimal _pb)
     {
         pb = _pb;
         leveldata = _leveldata;
@@ -51,8 +51,8 @@ public class PercentCounter : MonoBehaviour
         foregroundText = transform.Find("Score").GetComponent<Text>();
         shadowText = GetComponent<Text>();
 
-        foregroundText.text = 100.FormatDecimals() + "%";
-        shadowText.text = 100.FormatDecimals() + "%";
+        foregroundText.text = 100.FormatDecimals(50) + "%";
+        shadowText.text = 100.FormatDecimals(50) + "%";
 
         foregroundText.supportRichText = true;
         shadowText.supportRichText = true;
@@ -74,7 +74,6 @@ public class PercentCounter : MonoBehaviour
             timeSinceLastScore += Time.deltaTime;
             if (updateTimer > .02f && currentAcc != targetAcc)
             {
-                currentAcc = EaseValue(currentAcc, targetAcc - currentAcc, timeSinceLastScore, .6f);
                 UpdateText(currentAcc);
                 updateTimer = 0;
             }
@@ -85,7 +84,7 @@ public class PercentCounter : MonoBehaviour
 
     internal void OnScoreChanged(int totalScore, int noteIndex)
     {
-        float percent = GetPercent(totalScore, noteIndex);
+        var percent = GetPercent(totalScore, noteIndex);
 
         if (Plugin.animateCounter.Value)
         {
@@ -96,9 +95,9 @@ public class PercentCounter : MonoBehaviour
             UpdateText(percent);
     }
 
-    internal void UpdateText(float percent)
+    internal void UpdateText(decimal percent)
     {
-        string percentText = percent.FormatDecimals() + "%";
+        string percentText = percent.FormatDecimals(50) + "%";
         foregroundText.text = percentText;
         shadowText.text = percentText;
         if (percent > pb)
@@ -115,13 +114,11 @@ public class PercentCounter : MonoBehaviour
         }
     }
 
-    private float GetPercent(int totalScore, int noteIndex) =>
+    private decimal GetPercent(int totalScore, int noteIndex) =>
         Plugin.accType.Value switch
         {
-            AccType.Increasing => (float)totalScore / maxScore * 100,
-            AccType.Decreasing => (float)(totalScore + scoreLeftover[noteIndex]) / maxScore * 100,
-            _ => (float)totalScore / scoreSums[noteIndex] * 100,
+            AccType.Increasing => (decimal)totalScore / maxScore * 100,
+            AccType.Decreasing => (decimal)(totalScore + scoreLeftover[noteIndex]) / maxScore * 100,
+            _ => (decimal)totalScore / scoreSums[noteIndex] * 100,
         };
-    private float EaseValue(float current, float diff, float timeSum, float duration) =>
-            Mathf.Max(diff * (-Mathf.Pow(2f, -10f * timeSum / duration) + 1f) * 1024f / 1023f + current, 0f);
 }

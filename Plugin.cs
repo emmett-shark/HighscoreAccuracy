@@ -81,7 +81,7 @@ You can still update accuracy type through the config file, as usual."
                     __instance.topscores[k].fontSize = 19;
                     string letter = Utils.ScoreLetter(topScore / Utils.GetMaxScore(AccType.BaseGame, levelData));
                     float percent = topScore / Utils.GetMaxScore(accType.Value, levelData);
-                    __instance.topscores[k].text = __instance.topscores[k].text + " " + (100 * percent).FormatDecimals() + "% " + letter;
+                    __instance.topscores[k].text = __instance.topscores[k].text + " " + (100 * percent).FormatDecimals((int)decimals.Value) + "% " + letter;
                 }
             }
             catch (Exception e)
@@ -108,15 +108,15 @@ You can still update accuracy type through the config file, as usual."
         float percent = (float)GlobalVariables.gameplay_scoretotal / max * 100;
         float prevPrecent = float.Parse(__instance.txt_prevhigh.text) / max * 100;
 
-        __instance.txt_score.text += " " + percent.FormatDecimals() + "%";
-        __instance.txt_prevhigh.text += " " + prevPrecent.FormatDecimals() + "%";
+        __instance.txt_score.text += " " + percent.FormatDecimals((int)decimals.Value) + "%";
+        __instance.txt_prevhigh.text += " " + prevPrecent.FormatDecimals((int)decimals.Value) + "%";
     }
 
     [HarmonyPatch(typeof(GameController), "Start")]
     private static void Postfix(GameController __instance, List<float[]> ___leveldata)
     {
         if (__instance.freeplay) return;
-        float pbValue = 0;
+        decimal pbValue = 0;
         GameObject gameObject = GameObject.Find("ScoreShadow");
         if (showPBIngame.Value)
         {
@@ -134,12 +134,12 @@ You can still update accuracy type through the config file, as usual."
                 var foregroundText = pb.transform.Find("Score").GetComponent<Text>();
                 var shadowText = pb.GetComponent<Text>();
 
-                float max = Utils.GetMaxScore(accType.Value, ___leveldata);
+                decimal max = Utils.GetMaxScore(accType.Value, ___leveldata);
                 //Log.LogDebug($"{GlobalVariables.chosen_track} max score: {max}");
-                float percent = highscore / max * 100;
+                decimal percent = highscore / max * 100;
 
-                foregroundText.text = "PB: " + percent.FormatDecimals() + "%";
-                shadowText.text = "PB: " + percent.FormatDecimals() + "%";
+                foregroundText.text = "PB: " + percent.FormatDecimals((int)decimals.Value) + "%";
+                shadowText.text = "PB: " + percent.FormatDecimals((int)decimals.Value) + "%";
 
                 pbValue = percent;
             }
