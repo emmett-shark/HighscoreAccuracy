@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,7 +8,6 @@ public class PercentCounter : MonoBehaviour
 {
     public static Action<int, int> scoreChanged;
 
-    private List<float[]> leveldata;
     private Text foregroundText;
     private Text shadowText;
     private float pb;
@@ -24,26 +21,13 @@ public class PercentCounter : MonoBehaviour
     private float updateTimer;
     private float timeSinceLastScore;
 
-    public void Init(List<float[]> _leveldata, float _pb)
+    public void Init(int maxScore, int[] scoreLeftover, int[] scoreSums, float pb)
     {
-        pb = _pb;
-        leveldata = _leveldata;
+        this.maxScore = maxScore;
+        this.scoreLeftover = scoreLeftover;
+        this.scoreSums = scoreSums;
+        this.pb = pb;
         transform.localScale = Vector3.one;
-
-        var scorePerNote = Utils.GetMaxScores(Plugin.accType.Value, leveldata).ToArray();
-        scoreSums = new int[scorePerNote.Length];
-        for (int i = 0; i < scorePerNote.Length; i++)
-        {
-            maxScore += scorePerNote[i];
-            scoreSums[i] = maxScore;
-        }
-        int maxScoreLeftOver = maxScore;
-        scoreLeftover = new int[scorePerNote.Length];
-        for (int i = 0; i < scorePerNote.Length; i++)
-        {
-            maxScoreLeftOver -= scorePerNote[i];
-            scoreLeftover[i] = maxScoreLeftOver;
-        }
     }
 
     void Start()
@@ -85,6 +69,7 @@ public class PercentCounter : MonoBehaviour
 
     internal void OnScoreChanged(int totalScore, int noteIndex)
     {
+        if (scoreLeftover == null || scoreSums == null || maxScore == 0) return;
         float percent = GetPercent(totalScore, noteIndex);
 
         if (Plugin.animateCounter.Value)
@@ -115,13 +100,13 @@ public class PercentCounter : MonoBehaviour
         }
     }
 
-    private float GetPercent(int totalScore, int noteIndex) =>
-        Plugin.accType.Value switch
+    private float GetPercent(int totalScore, int noteIndex) => Plugin.accType.Value switch
         {
             AccType.Increasing => (float)totalScore / maxScore * 100,
             AccType.Decreasing => (float)(totalScore + scoreLeftover[noteIndex]) / maxScore * 100,
             _ => (float)totalScore / scoreSums[noteIndex] * 100,
         };
+
     private float EaseValue(float current, float diff, float timeSum, float duration) =>
             Mathf.Max(diff * (-Mathf.Pow(2f, -10f * timeSum / duration) + 1f) * 1024f / 1023f + current, 0f);
 }

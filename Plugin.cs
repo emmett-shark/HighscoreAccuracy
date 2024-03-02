@@ -145,16 +145,32 @@ You can still update accuracy type through the config file, as usual."
             }
         }
 
+        var scorePerNote = Utils.GetMaxScores(accType.Value, ___leveldata).ToArray();
+        var scoreSums = new int[scorePerNote.Length];
+        var maxScore = 0;
+        for (int i = 0; i < scorePerNote.Length; i++)
+        {
+            maxScore += scorePerNote[i];
+            scoreSums[i] = maxScore;
+        }
+        int maxScoreLeftOver = maxScore;
+        var scoreLeftover = new int[scorePerNote.Length];
+        for (int i = 0; i < scorePerNote.Length; i++)
+        {
+            maxScoreLeftOver -= scorePerNote[i];
+            scoreLeftover[i] = maxScoreLeftOver;
+        }
+
         if (showAccIngame.Value)
         {
             PercentCounter percentCounter = Instantiate(gameObject, gameObject.transform.parent).AddComponent<PercentCounter>();
-            percentCounter.Init(___leveldata, pbValue);
+            percentCounter.Init(maxScore, scoreLeftover, scoreSums, pbValue);
         }
 
         if (showLetterIngame.Value)
         {
             ScoreCounter scoreCounter = Instantiate(gameObject, gameObject.transform.parent).AddComponent<ScoreCounter>();
-            scoreCounter.Init(___leveldata);
+            scoreCounter.Init(scoreSums);
         }
     }
 

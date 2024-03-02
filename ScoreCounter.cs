@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,14 +8,13 @@ public class ScoreCounter : MonoBehaviour
 {
     public static Action<int, int> scoreChanged;
 
-    private List<float[]> leveldata;
+    private int[] scoreSums;
     private Text foregroundText;
     private Text shadowText;
-    private float gameMaxScore;
 
-    public void Init(List<float[]> _leveldata)
+    public void Init(int[] scoreSums)
     {
-        leveldata = _leveldata;
+        this.scoreSums = scoreSums;
         transform.localScale = Vector3.one;
     }
 
@@ -35,8 +33,8 @@ public class ScoreCounter : MonoBehaviour
 
     internal void OnScoreChanged(int totalScore, int noteIndex)
     {
-        gameMaxScore += Utils.GetGameMax(leveldata[noteIndex][1]);
-        float percent = totalScore / gameMaxScore;
+        if (scoreSums == null) return;
+        float percent = (float)totalScore / scoreSums[noteIndex] * 100;
         string score = Utils.ScoreLetter(percent);
         foregroundText.text = score;
         shadowText.text = score;
