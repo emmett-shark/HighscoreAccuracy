@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using BaboonAPI.Hooks.Tracks;
 using TrombLoader.CustomTracks;
 using TrombLoader.Helpers;
@@ -20,29 +19,46 @@ public static class Utils
     public static string ScoreLetter(float num) =>
         num < 1f ? (num < 0.8f ? (num < 0.6f ? (num < 0.4f ? (num < 0.2f ? "F" : "D") : "C") : "B") : "A") : "S";
 
-    public static int GetMaxScore(AccType accType, List<float[]> levelData) => GetMaxScores(accType, levelData).Sum();
+    public static int GetMaxScore(AccType accType, List<float[]> levelData) => GetScoreSums(accType, levelData)[levelData.Count - 1];
 
-    public static IEnumerable<int> GetMaxScores(AccType accType, List<float[]> levelData) =>
-        levelData.Select((noteData, i) => GetMaxScore(accType, noteData[1], i));
-
-    public static int GetMaxScore(AccType accType, float length, int noteIndex) =>
-        accType switch
+    public static int[] GetScoreSums(AccType accType, List<float[]> levelData)
+    {
+        int[] scoreSums = new int[levelData.Count];
+        int scoreTotal = 0;
+        int index = 0;
+        float minimumNoteGap = .025f;
+        for (int i = 0; i < levelData.Count; i++)
         {
-            AccType.BaseGame => GetGameMax(length),
-            _ => GetRealMax(length, noteIndex),
-        };
+            var length = levelData[i][1];
+            while (i + 1 < levelData.Count && levelData[i][0] + levelData[i][1] + minimumNoteGap >= levelData[i + 1][0])
+            {
+                length += levelData[i + 1][1];
+                scoreSums[i] = scoreTotal;
+                i++;
+            }
+            var score = accType switch
+            {
+                AccType.BaseGame => GetGameMax(length),
+                _ => GetRealMax(length, index),
+            };
+            scoreTotal += score;
+            scoreSums[i] = scoreTotal;
+            index++;
+        }
+        return scoreSums;
+    }
 
-    public static int GetRealMax(float length, int noteIndex)
+    private static int GetRealMax(float length, int noteIndex)
     {
         double champbonus = noteIndex > 23 ? 1.5 : 0;
         double realCoefficient = (Math.Min(noteIndex, 10) + champbonus) * 0.100000001490116 + 1.0;
-        length = GetLength(length);
-        return (int)(Mathf.Floor((float)((double)length * 10.0 * 100 * realCoefficient)) * 10f);
+        length = GetBaseScore(length);
+        return (int)(Mathf.Floor((float)((double)length * 100 * realCoefficient)) * 10f);
     }
 
-    public static int GetGameMax(float length) => (int)Mathf.Floor(Mathf.Floor(GetLength(length) * 10f * 100f * 1.315f) * 10f);
+    private static int GetGameMax(float length) => (int)Mathf.Floor(Mathf.Floor(GetBaseScore(length) * 100f * 1.315f) * 10f);
 
-    public static float GetLength(float length) => length <= 0f ? 0.015f : length;
+    private static float GetBaseScore(float length) => Mathf.Clamp(length, 0.2f, 5f) * 8f + 10f;
 
     public static List<float[]> GetLevelData(string trackRef) =>
         TrackLookup.lookup(trackRef).LoadChart().savedleveldata;

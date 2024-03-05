@@ -118,6 +118,8 @@ You can still update accuracy type through the config file, as usual."
         if (__instance.freeplay) return;
         float pbValue = 0;
         GameObject gameObject = GameObject.Find("ScoreShadow");
+        var scoreSums = Utils.GetScoreSums(accType.Value, ___leveldata);
+        int maxScore = scoreSums[___leveldata.Count - 1];
         if (showPBIngame.Value)
         {
             var score = TrackLookup.lookupScore(GlobalVariables.chosen_track);
@@ -134,9 +136,8 @@ You can still update accuracy type through the config file, as usual."
                 var foregroundText = pb.transform.Find("Score").GetComponent<Text>();
                 var shadowText = pb.GetComponent<Text>();
 
-                float max = Utils.GetMaxScore(accType.Value, ___leveldata);
-                //Log.LogDebug($"{GlobalVariables.chosen_track} max score: {max}");
-                float percent = highscore / max * 100;
+                //Log.LogDebug($"{GlobalVariables.chosen_track} max score: {maxScore}");
+                float percent = (float)highscore / maxScore * 100;
 
                 foregroundText.text = "PB: " + percent.FormatDecimals() + "%";
                 shadowText.text = "PB: " + percent.FormatDecimals() + "%";
@@ -145,20 +146,10 @@ You can still update accuracy type through the config file, as usual."
             }
         }
 
-        var scorePerNote = Utils.GetMaxScores(accType.Value, ___leveldata).ToArray();
-        var scoreSums = new int[scorePerNote.Length];
-        var maxScore = 0;
-        for (int i = 0; i < scorePerNote.Length; i++)
+        var scoreLeftover = new int[scoreSums.Length];
+        for (int i = 0; i < scoreSums.Length; i++)
         {
-            maxScore += scorePerNote[i];
-            scoreSums[i] = maxScore;
-        }
-        int maxScoreLeftOver = maxScore;
-        var scoreLeftover = new int[scorePerNote.Length];
-        for (int i = 0; i < scorePerNote.Length; i++)
-        {
-            maxScoreLeftOver -= scorePerNote[i];
-            scoreLeftover[i] = maxScoreLeftOver;
+            scoreLeftover[i] = maxScore - scoreSums[i];
         }
 
         if (showAccIngame.Value)
@@ -170,7 +161,7 @@ You can still update accuracy type through the config file, as usual."
         if (showLetterIngame.Value)
         {
             ScoreCounter scoreCounter = Instantiate(gameObject, gameObject.transform.parent).AddComponent<ScoreCounter>();
-            scoreCounter.Init(scoreSums);
+            scoreCounter.Init(Utils.GetScoreSums(AccType.BaseGame, ___leveldata));
         }
     }
 

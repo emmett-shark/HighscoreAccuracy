@@ -34,7 +34,7 @@ public class ScoreCounter : MonoBehaviour
     internal void OnScoreChanged(int totalScore, int noteIndex)
     {
         if (scoreSums == null) return;
-        float percent = (float)totalScore / scoreSums[noteIndex] * 100;
+        float percent = (float)totalScore / scoreSums[noteIndex];
         string score = Utils.ScoreLetter(percent);
         foregroundText.text = score;
         shadowText.text = score;
