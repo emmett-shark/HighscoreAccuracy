@@ -111,7 +111,9 @@ You can still update accuracy type through the config file, as usual."
         float prevPrecent = float.Parse(__instance.txt_prevhigh.text) / max * 100;
 
         __instance.txt_score.text += " " + percent.FormatDecimals() + "%";
+        __instance.txt_score.horizontalOverflow = HorizontalWrapMode.Overflow;
         __instance.txt_prevhigh.text += " " + prevPrecent.FormatDecimals() + "%";
+        __instance.txt_prevhigh.horizontalOverflow = HorizontalWrapMode.Overflow;
     }
 
     [HarmonyPatch(typeof(GameController), "Start")]
