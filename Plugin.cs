@@ -72,6 +72,8 @@ You can still update accuracy type through the config file, as usual."
         string trackRef = ___alltrackslist[___songindex].trackref;
         if (Utils.SkipHighscore(trackRef)) return;
         var levelData = Utils.GetLevelData(trackRef);
+        int gameMax = Utils.GetMaxScore(AccType.BaseGame, levelData);
+        int max = Utils.GetMaxScore(accType.Value, levelData);
         for (int k = 0; k < 5; k++)
         {
             try
@@ -79,8 +81,8 @@ You can still update accuracy type through the config file, as usual."
                 if (float.TryParse(__instance.topscores[k].text, out float topScore))
                 {
                     __instance.topscores[k].fontSize = 19;
-                    string letter = Utils.ScoreLetter(topScore / Utils.GetMaxScore(AccType.BaseGame, levelData));
-                    float percent = topScore / Utils.GetMaxScore(accType.Value, levelData);
+                    string letter = Utils.ScoreLetter(topScore / gameMax);
+                    float percent = topScore / max;
                     __instance.topscores[k].text = __instance.topscores[k].text + " " + (100 * percent).FormatDecimals() + "% " + letter;
                 }
             }

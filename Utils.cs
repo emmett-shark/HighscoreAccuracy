@@ -36,11 +36,7 @@ public static class Utils
                 scoreSums[i] = scoreTotal;
                 i++;
             }
-            var score = accType switch
-            {
-                AccType.BaseGame => GetGameMax(length),
-                _ => GetRealMax(length, index),
-            };
+            var score = accType == AccType.BaseGame ? GetGameMax(length) : GetRealMax(length, index);
             scoreTotal += score;
             scoreSums[i] = scoreTotal;
             index++;
