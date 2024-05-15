@@ -5,6 +5,9 @@ Adds accuracy information to level select and when playing
 - [BaboonAPI](https://github.com/tc-mods/BaboonAPI)
 
 ## Changelog
+Unreleased
+- Add option to change text color based on how close you are to a PB (old behavior), whether a PB is possible anymore, or a combination of the two (the new default)
+
 v.1.3.7
 - Fix for new scoring system in TC 1.20
 - Fix % sometimes not showing on points screen
