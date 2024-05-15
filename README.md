@@ -5,7 +5,7 @@ Adds accuracy information to level select and when playing
 - [BaboonAPI](https://github.com/tc-mods/BaboonAPI)
 
 ## Changelog
-Unreleased
+v1.3.8
 - Add option to change text color based on how close you are to a PB (old behavior), whether a PB is possible anymore, or a combination of the two (the new default)
 
 v.1.3.7
