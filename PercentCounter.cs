@@ -10,7 +10,16 @@ public class PercentCounter : MonoBehaviour
 
     private Text foregroundText;
     private Text shadowText;
-    private float pb;
+
+    /// <summary>
+    /// Personal best score
+    /// </summary>
+    private int pbScore;
+
+    /// <summary>
+    /// Personal best percentage, on a scale of 0 - 100
+    /// </summary>
+    private float pbPercent;
 
     private int maxScore;
     private int[] scoreLeftover;
@@ -21,12 +30,13 @@ public class PercentCounter : MonoBehaviour
     private float updateTimer;
     private float timeSinceLastScore;
 
-    public void Init(int maxScore, int[] scoreLeftover, int[] scoreSums, float pb)
+    public void Init(int maxScore, int[] scoreLeftover, int[] scoreSums, int pbScore, float pbPercent)
     {
         this.maxScore = maxScore;
         this.scoreLeftover = scoreLeftover;
         this.scoreSums = scoreSums;
-        this.pb = pb;
+        this.pbScore = pbScore;
+        this.pbPercent = pbPercent;
         transform.localScale = Vector3.one;
     }
 
@@ -78,7 +88,54 @@ public class PercentCounter : MonoBehaviour
             targetAcc = percent;
         }
         else
+        {
             UpdateText(percent);
+        }
+
+        // If using `PbPossibility` or `Hybrid` color behavior, we update the color here
+        // otherwise we update it in UpdateText (`PbPossibility` doesn't support coloring with an animated counter)
+        //
+        // PB Possibility and Hybrid color behaviors are pretty similar, hybrid only adds an orange color
+        // so we handle them both here
+        if (
+            Plugin.colorBehavior.Value == ColorBehavior.PbPossibility ||
+            Plugin.colorBehavior.Value == ColorBehavior.Hybrid
+            )
+        {
+            if (totalScore > pbScore)
+            {
+                // A PB is inevitable, dark green
+                foregroundText.color = new Color(0f, 0.7f, 0f);
+            }
+            else if (percent > pbPercent)
+            {
+                // You are currently above your PB, green
+                foregroundText.color = Color.green;
+            }
+            else
+            {
+                float possibleRemainingScore = scoreLeftover[noteIndex];
+                if (totalScore + possibleRemainingScore > pbScore)
+                {
+                    // You are below your PB but can still make a new PB
+                    if (Plugin.colorBehavior.Value == ColorBehavior.Hybrid && percent < pbPercent - 10)
+                    {
+                        // We're in hybrid-mode and you're more than 10% off your PB, orange
+                        foregroundText.color = new Color(1f, 0.5f, 0f);
+                    }
+                    else
+                    {
+                        // You're less than 10% off your PB, or you're not in hybrid mode, yellow
+                        foregroundText.color = Color.yellow;
+                    }
+                }
+                else
+                {
+                    // A PB is impossible, red
+                    foregroundText.color = Color.red;
+                }
+            }
+        }
     }
 
     internal void UpdateText(float percent)
@@ -86,20 +143,29 @@ public class PercentCounter : MonoBehaviour
         string percentText = percent.FormatDecimals() + "%";
         foregroundText.text = percentText;
         shadowText.text = percentText;
-        if (percent > pb)
+
+        // If using `Closeness` color behavior, we update the color here
+        // otherwise we update it in OnScoreChanged (`PbPossibility` doesn't support coloring with an animated counter)
+        if (Plugin.colorBehavior.Value == ColorBehavior.Closeness)
         {
-            foregroundText.color = Color.green;
-        }
-        else if (percent < pb - 10)
-        {
-            foregroundText.color = Color.red;
-        }
-        else
-        {
-            foregroundText.color = Color.yellow;
+            if (percent > pbPercent)
+            {
+                foregroundText.color = Color.green;
+            }
+            else if (percent < pbPercent - 10)
+            {
+                foregroundText.color = Color.red;
+            }
+            else
+            {
+                foregroundText.color = Color.yellow;
+            }
         }
     }
 
+    /// <summary>
+    /// Get the display percentage for a score, on a scale of 0 - 100
+    /// </summary>
     private float GetPercent(int totalScore, int noteIndex) => Plugin.accType.Value switch
         {
             AccType.Increasing => (float)totalScore / maxScore * 100,

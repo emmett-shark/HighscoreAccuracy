@@ -22,6 +22,7 @@ public class Plugin : BaseUnityPlugin
     internal static ManualLogSource Log;
 
     internal static ConfigEntry<AccType> accType;
+    internal static ConfigEntry<ColorBehavior> colorBehavior;
     internal static ConfigEntry<float> decimals;
     internal static ConfigEntry<bool> showAccIngame;
     internal static ConfigEntry<bool> showLetterIngame;
@@ -34,6 +35,7 @@ public class Plugin : BaseUnityPlugin
         Log = Logger;
 
         accType = Config.Bind("General", "Acc Type", AccType.Real);
+        colorBehavior = Config.Bind("General", "Color Behavior", ColorBehavior.Hybrid);
         decimals = Config.Bind("General", "Decimal Places", 2f);
         showAccIngame = Config.Bind("General", "Show acc in track", true);
         showLetterIngame = Config.Bind("General", "Show letter rank in track", false);
@@ -43,22 +45,46 @@ public class Plugin : BaseUnityPlugin
         object ttSettings = OptionalTootTallySettings.AddNewPage("Highscore Accuracy", "Highscore Accuracy", 40, new Color(.1f, .1f, .1f, .1f));
         if (ttSettings != null)
         {
-            OptionalTootTallySettings.AddLabel(ttSettings, "Accuracy Type *", 24, TMPro.TextAlignmentOptions.BottomLeft);
+            OptionalTootTallySettings.AddLabel(ttSettings, "Accuracy Type", 24, TMPro.TextAlignmentOptions.BottomLeft);
             OptionalTootTallySettings.AddDropdown(ttSettings, "Accuracy Type", accType);
+            OptionalTootTallySettings.AddLabel(ttSettings, @"- Base Game: uses the internal calculations for the letter where >100% = S.
+
+- Real: calculates the actual maximum score for a track.
+
+- Decreasing: Uses real accuracy, but your % will always decrease or stay the same.
+For example, ignoring multipliers, completely missing the first note of a 100 note song will give you 99%.
+
+- Increasing: Uses real accuracy, but your % will always increase or stay the same.
+For example, ignoring multipliers, perfectly hitting the first note of a 100 note song will give you 1%."
+                , 24, TMPro.TextAlignmentOptions.TopLeft);
+
+            OptionalTootTallySettings.AddLabel(ttSettings, "Color Behavior", 24, TMPro.TextAlignmentOptions.BottomLeft);
+            OptionalTootTallySettings.AddDropdown(ttSettings, "Color Behavior", colorBehavior);
+            OptionalTootTallySettings.AddLabel(ttSettings, @"- Closeness: Color depends on how close you are to your PB (old Highscore Accuracy behavior)
+    - Green: Above PB
+    - Yellow: Up to 10% below PB
+    - Red: More than 10% below PB
+
+- PB Possibility: Color depends on whether a PB is possible or not
+    - Dark green: Above PB and cannot avoid setting a new PB
+    - Green: Above PB
+    - Yellow: PB is still possible with the remaining notes
+    - Red: PB is impossible
+
+- Hybrid: A combination of the above two (adding orange if below 10% of your PB, but a PB is still possible)
+    - Dark green: Above PB and cannot avoid setting a new PB
+    - Green: Above PB
+    - Yellow: PB is still possible with the remaining notes
+    - Orange: PB is still possible with the remaining notes, but you're more than 10% below PB
+    - Red: PB is impossible"
+                , 24, TMPro.TextAlignmentOptions.TopLeft);
+
             OptionalTootTallySettings.AddSlider(ttSettings, "Decimal Places", 0, 4, decimals, true);
             OptionalTootTallySettings.AddToggle(ttSettings, "Show Acc Ingame", showAccIngame);
             OptionalTootTallySettings.AddToggle(ttSettings, "Show Letter Rank Ingame", showLetterIngame);
             OptionalTootTallySettings.AddToggle(ttSettings, "Show PB Ingame", showPBIngame);
             OptionalTootTallySettings.AddToggle(ttSettings, "Animate Counter", animateCounter);
-            OptionalTootTallySettings.AddLabel(ttSettings, @"* Accuracy Type:
-- Base Game: uses the internal calculations for the letter where >100% = S.
-- Real: calculates the actual maximum score for a track.
-- Decreasing: Uses real accuracy, but your % will always decrease or stay the same.
-For example, ignoring multipliers, completely missing the first note of a 100 note song will give you 99%.
-- Increasing: Uses real accuracy, but your % will always increase or stay the same.
-For example, ignoring multipliers, perfectly hitting the first note of a 100 note song will give you 1%.
-
-If the dropdown isn't showing up, update TootTally.
+            OptionalTootTallySettings.AddLabel(ttSettings, @"If the dropdowns aren't showing up, update TootTally.
 You can still update accuracy type through the config file, as usual."
                 , 24, TMPro.TextAlignmentOptions.TopLeft);
         }
@@ -120,7 +146,8 @@ You can still update accuracy type through the config file, as usual."
     private static void Postfix(GameController __instance, List<float[]> ___leveldata)
     {
         if (__instance.freeplay) return;
-        float pbValue = 0;
+        float pbPercent = 0;
+        int pbScore = 0;
         GameObject gameObject = GameObject.Find("ScoreShadow");
         var scoreSums = Utils.GetScoreSums(accType.Value, ___leveldata);
         int maxScore = scoreSums[___leveldata.Count - 1];
@@ -146,7 +173,8 @@ You can still update accuracy type through the config file, as usual."
                 foregroundText.text = "PB: " + percent.FormatDecimals() + "%";
                 shadowText.text = "PB: " + percent.FormatDecimals() + "%";
 
-                pbValue = percent;
+                pbPercent = percent;
+                pbScore = highscore;
             }
         }
 
@@ -159,7 +187,7 @@ You can still update accuracy type through the config file, as usual."
         if (showAccIngame.Value)
         {
             PercentCounter percentCounter = Instantiate(gameObject, gameObject.transform.parent).AddComponent<PercentCounter>();
-            percentCounter.Init(maxScore, scoreLeftover, scoreSums, pbValue);
+            percentCounter.Init(maxScore, scoreLeftover, scoreSums, pbScore, pbPercent);
         }
 
         if (showLetterIngame.Value)

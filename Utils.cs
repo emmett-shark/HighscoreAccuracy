@@ -21,6 +21,19 @@ public static class Utils
 
     public static int GetMaxScore(AccType accType, List<float[]> levelData) => GetScoreSums(accType, levelData)[levelData.Count - 1];
 
+    /// <summary>
+    /// Get an array of the max scores attainable at each note of the chart
+    /// </summary>
+    /// <remarks>
+    /// For example, if we have a chart with 3 notes worth 100, 200, and 300 points each, this array will contain...
+    /// <code>
+    /// {
+    ///     100,
+    ///     300, // (100 + 200)
+    ///     600, // (100 + 200 + 300)
+    /// }
+    /// </code>
+    /// </remarks>
     public static int[] GetScoreSums(AccType accType, List<float[]> levelData)
     {
         int[] scoreSums = new int[levelData.Count];
@@ -29,6 +42,7 @@ public static class Utils
         float minimumNoteGap = .025f;
         for (int i = 0; i < levelData.Count; i++)
         {
+            // Go through this note and all connected ones to total up their length
             var length = levelData[i][1];
             while (i + 1 < levelData.Count && levelData[i][0] + levelData[i][1] + minimumNoteGap >= levelData[i + 1][0])
             {
@@ -36,6 +50,7 @@ public static class Utils
                 scoreSums[i] = scoreTotal;
                 i++;
             }
+
             var score = accType == AccType.BaseGame ? GetGameMax(length) : GetRealMax(length, index);
             scoreTotal += score;
             scoreSums[i] = scoreTotal;
