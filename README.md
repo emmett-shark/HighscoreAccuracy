@@ -1,10 +1,13 @@
 # HighscoreAccuracy
-Adds accuracy information to level select and when playing
+Adds accuracy information to score screen and when playing
 
 ## Dependencies:
 - [BaboonAPI](https://github.com/tc-mods/BaboonAPI)
 
 ## Changelog
+v1.3.9
+- Extra error checking
+
 v1.3.8
 - Add option to change text color based on how close you are to a PB (old behavior), whether a PB is possible anymore, or a combination of the two (the new default)
 

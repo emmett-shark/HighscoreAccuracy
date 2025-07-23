@@ -76,7 +76,11 @@ public static class Utils
 
     public static bool SkipHighscore(string trackRef)
     {
-        return TrackLookup.lookup(trackRef) is CustomTrack ct
-            && new FileInfo(Path.Combine(ct.folderPath, Globals.defaultChartName)).Length > 2_000_000;
+        if (TrackLookup.tryLookup(trackRef) == null) return true;
+        if (TrackLookup.lookup(trackRef) is not CustomTrack) return false;
+
+        var ct = TrackLookup.lookup(trackRef) as CustomTrack;
+        var path = Path.Combine(ct.folderPath, Globals.defaultChartName);
+        return !File.Exists(path) || new FileInfo(path).Length > 2_000_000;
     }
 }

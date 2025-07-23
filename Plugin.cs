@@ -97,12 +97,12 @@ You can still update accuracy type through the config file, as usual."
     {
         string trackRef = ___alltrackslist[___songindex].trackref;
         if (Utils.SkipHighscore(trackRef)) return;
-        var levelData = Utils.GetLevelData(trackRef);
-        int gameMax = Utils.GetMaxScore(AccType.BaseGame, levelData);
-        int max = Utils.GetMaxScore(accType.Value, levelData);
-        for (int k = 0; k < 5; k++)
+        try
         {
-            try
+            var levelData = Utils.GetLevelData(trackRef);
+            int gameMax = Utils.GetMaxScore(AccType.BaseGame, levelData);
+            int max = Utils.GetMaxScore(accType.Value, levelData);
+            for (int k = 0; k < 5; k++)
             {
                 if (float.TryParse(__instance.topscores[k].text, out float topScore))
                 {
@@ -112,10 +112,10 @@ You can still update accuracy type through the config file, as usual."
                     __instance.topscores[k].text = __instance.topscores[k].text + " " + (100 * percent).FormatDecimals() + "% " + letter;
                 }
             }
-            catch (Exception e)
-            {
-                Debug.LogError(e.Message);
-            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e.Message);
         }
     }
 
