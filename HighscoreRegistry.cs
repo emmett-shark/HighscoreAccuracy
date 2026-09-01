@@ -50,28 +50,22 @@ public static class HighscoreRegistry
 
     public static HighscoreResult GetHighscore(string trackref, string mods, float gamespeed)
     {
+
+        if (Plugin.useModSpecificHighscores.Value == Global)
+            return new HighscoreResult(GetGlobalHighscore(), false);
+
         mods = SortModsString(mods);
         int gamespeedInt = (int)Math.Round(gamespeed * 100);
 
-        if (Plugin.useModSpecificHighscores.Value == Never || gamespeedInt == 0)
-            return new HighscoreResult(GetGlobalHighscore(), false); // return false for IsGlobal so that the asterisk isn't shown
+        if (_trackRefToHighscoreDict.TryGetValue(trackref, out var trackScores) &&
+            trackScores.TryGetValue(mods, out var modScores) &&
+            modScores.TryGetValue(gamespeedInt, out var highscore))
+            return new HighscoreResult(highscore, false);
 
-        if (_trackRefToHighscoreDict.TryGetValue(trackref, out var trackScores))
-        {
-            if (trackScores.TryGetValue(mods, out var modScores) &&
-                modScores.TryGetValue(gamespeedInt, out var highscore))
-                return new HighscoreResult(highscore, false);
+        if (Plugin.useModSpecificHighscores.Value == Hybrid)
+            return new HighscoreResult(GetGlobalHighscore(), true);
 
-            if (Plugin.useModSpecificHighscores.Value == ExactMatchFound)
-                return new HighscoreResult(GetGlobalHighscore(), true);
-
-            return new HighscoreResult(0, false);
-        }
-
-        if (Plugin.useModSpecificHighscores.Value == Always)
-            return new HighscoreResult(0, false);
-
-        return new HighscoreResult(GetGlobalHighscore(), true);
+        return new HighscoreResult(0, false);
     }
 
     private static int GetGlobalHighscore()
@@ -88,12 +82,12 @@ public static class HighscoreRegistry
     public readonly struct HighscoreResult
     {
         public int Score { get; }
-        public bool IsGlobal { get; }
+        public bool ShowAsterisk { get; }
 
-        public HighscoreResult(int score, bool isGlobal)
+        public HighscoreResult(int score, bool showAsterisk)
         {
             Score = score;
-            IsGlobal = isGlobal;
+            ShowAsterisk = showAsterisk;
         }
     }
 }

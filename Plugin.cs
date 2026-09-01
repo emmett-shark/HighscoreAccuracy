@@ -44,7 +44,7 @@ public class Plugin : BaseUnityPlugin
         showLetterIngame = Config.Bind("General", "Show letter rank in track", false);
         showPBIngame = Config.Bind("General", "Show PB in track", true);
         animateCounter = Config.Bind("General", "Gradually increase the accuracy.", false);
-        useModSpecificHighscores = Config.Bind("General", "Use Modifier and Game Speed Specific High Scores", ModSpecificHighscoreMode.Never);
+        useModSpecificHighscores = Config.Bind("General", "Use Modifier and Game Speed Specific High Scores", ModSpecificHighscoreMode.Hybrid);
 
         object ttSettings = OptionalTootTally.AddNewPage("Highscore Accuracy", "Highscore Accuracy", 40, new Color(.1f, .1f, .1f, .1f));
         if (ttSettings != null)
@@ -93,21 +93,16 @@ For example, ignoring multipliers, perfectly hitting the first note of a 100 not
             OptionalTootTally.AddLabel(ttSettings, @"Modifier and game speed specific high scores set without this version of the mod installed are not saved and
 cannot be shown. While this setting is not set to Never, an asterisk will be shown next to the high score if the high score was set without this mod installed.
             
-- Never: High scores are not specific to modifiers or game speed. The highest score is shown
-regardless of which modifiers or game speed were used.
+- Global: High scores are not specific to modifiers or game speed. The highest score is shown
+regardless of which modifiers or game speed was used.
             
-- ExactMatchFound: High scores are specific to modifiers and game speed. If a high score has not
-been set with the exact same modifiers and game speed, the highest score across all modifiers and
-game speeds is shown instead.
-
-- TrackFound: High scores are specific to modifiers and game speed. If the song has never been
-played with this mod installed, the highest score across all modifiers and game speeds set without
-this mod is shown instead. If the song has been played with this mod installed, but not with the
-exact same modifiers and game speed, no high score is shown.
-
-- Always: High scores are specific to modifiers and game speed.
+- ModSpecific: High scores are specific to modifiers and game speed.
 A high score is only shown if the song has been played with the exact same modifiers and game speed
-with this mod installed. Otherwise, no high score is shown."
+with this mod installed. Otherwise, no high score is shown.
+            
+- Hybrid: High scores are specific to modifiers and game speed. If a high score has not
+been set with the exact same modifiers and game speed, the highest score across all modifiers and
+game speeds is shown instead."
                 , 24, TMPro.TextAlignmentOptions.TopLeft);
         }
 
@@ -197,8 +192,8 @@ with this mod installed. Otherwise, no high score is shown."
                 //Log.LogDebug($"{GlobalVariables.chosen_track} max score: {maxScore}");
                 float percent = (float)highscoreResult.Score / maxScore * 100;
 
-                foregroundText.text = "PB: " + percent.FormatDecimals() + "%" + (highscoreResult.IsGlobal ? "*" : "");
-                shadowText.text = "PB: " + percent.FormatDecimals() + "%" + (highscoreResult.IsGlobal ? "*" : "");
+                foregroundText.text = "PB: " + percent.FormatDecimals() + "%" + (highscoreResult.ShowAsterisk ? "*" : "");
+                shadowText.text = "PB: " + percent.FormatDecimals() + "%" + (highscoreResult.ShowAsterisk ? "*" : "");
 
                 pbPercent = percent;
                 pbScore = highscoreResult.Score;

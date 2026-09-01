@@ -2,8 +2,7 @@
 
 public enum ModSpecificHighscoreMode
 {
-    Never,
-    ExactMatchFound,
-    TrackFound,
-    Always
+    Global,
+    ModSpecific,
+    Hybrid
 }
