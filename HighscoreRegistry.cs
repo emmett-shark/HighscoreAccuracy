@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BaboonAPI.Hooks.Tracks;
-using TootTallyCore.Utils.Helpers;
+using static HighscoreAccuracy.Enums.ModSpecificHighscoreMode;
 
 namespace HighscoreAccuracy;
 
@@ -11,8 +11,9 @@ public static class HighscoreRegistry
     // Dictionary structure: trackref -> mods -> gamespeed -> highscore
     private static Dictionary<string, Dictionary<string, Dictionary<int, int>>> _trackRefToHighscoreDict = new Dictionary<string, Dictionary<string, Dictionary<int, int>>>();
 
-    public static void LoadHighscoresFromFile()
+    public static void LoadHighscoresFromFile(bool noTootTallyCore)
     {
+        if (noTootTallyCore) return;
         _trackRefToHighscoreDict = FileHelper.LoadFromTootTallyAppData<Dictionary<string, Dictionary<string, Dictionary<int, int>>>>(Plugin.FILE_HIGHSCORES_NAME);
         if (_trackRefToHighscoreDict == default)
         {
@@ -24,6 +25,7 @@ public static class HighscoreRegistry
 
     public static void CheckNewScore(string trackref, int score, string mods, float gamespeed)
     {
+        if (gamespeed == 0) return;
         mods = SortModsString(mods);
         int gamespeedInt = (int)Math.Round(gamespeed * 100);
 
@@ -51,7 +53,7 @@ public static class HighscoreRegistry
         mods = SortModsString(mods);
         int gamespeedInt = (int)Math.Round(gamespeed * 100);
 
-        if (Plugin.useModSpecificHighscores.Value == Plugin.ModSpecificHighscoreMode.Never)
+        if (Plugin.useModSpecificHighscores.Value == Never || gamespeedInt == 0)
             return new HighscoreResult(GetGlobalHighscore(), false); // return false for IsGlobal so that the asterisk isn't shown
 
         if (_trackRefToHighscoreDict.TryGetValue(trackref, out var trackScores))
@@ -60,18 +62,17 @@ public static class HighscoreRegistry
                 modScores.TryGetValue(gamespeedInt, out var highscore))
                 return new HighscoreResult(highscore, false);
 
-            if (Plugin.useModSpecificHighscores.Value == Plugin.ModSpecificHighscoreMode.ExactMatchFound)
+            if (Plugin.useModSpecificHighscores.Value == ExactMatchFound)
                 return new HighscoreResult(GetGlobalHighscore(), true);
 
             return new HighscoreResult(0, false);
         }
 
-        if (Plugin.useModSpecificHighscores.Value == Plugin.ModSpecificHighscoreMode.Always)
+        if (Plugin.useModSpecificHighscores.Value == Always)
             return new HighscoreResult(0, false);
 
         return new HighscoreResult(GetGlobalHighscore(), true);
     }
-
 
     private static int GetGlobalHighscore()
     {

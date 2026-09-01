@@ -5,6 +5,9 @@ Adds accuracy information to score screen and when playing
 - [BaboonAPI](https://github.com/tc-mods/BaboonAPI)
 
 ## Changelog
+v1.4.0
+- Add modifier and game speed specific high scores (thanks @cono)
+
 v1.3.9
 - Extra error checking
 

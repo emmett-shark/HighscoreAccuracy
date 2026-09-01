@@ -1,4 +1,4 @@
-namespace HighscoreAccuracy;
+namespace HighscoreAccuracy.Enums;
 
 public enum ColorBehavior
 {

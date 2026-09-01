@@ -4,18 +4,16 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
-using TootTallyGameModifiers;
-using TootTallyCore.Utils.TootTallyGlobals;
 using UnityEngine;
 using UnityEngine.UI;
+using HighscoreAccuracy.Enums;
 
 namespace HighscoreAccuracy;
 
 [HarmonyPatch]
 [BepInDependency("ch.offbeatwit.baboonapi.plugin")]
 [BepInDependency("TrombLoader")]
-[BepInDependency("TootTallyCore")]
-[BepInDependency("TootTallyGameModifiers")]
+[BepInDependency("TootTallyGameModifiers", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("TootTallySettings", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
@@ -34,14 +32,6 @@ public class Plugin : BaseUnityPlugin
     internal static ConfigEntry<bool> animateCounter;
     internal static ConfigEntry<ModSpecificHighscoreMode> useModSpecificHighscores;
 
-    public enum ModSpecificHighscoreMode
-    {
-        Never,
-        ExactMatchFound,
-        TrackFound,
-        Always
-    }
-
     private void Awake()
     {
         Instance = this;
@@ -56,12 +46,12 @@ public class Plugin : BaseUnityPlugin
         animateCounter = Config.Bind("General", "Gradually increase the accuracy.", false);
         useModSpecificHighscores = Config.Bind("General", "Use Modifier and Game Speed Specific High Scores", ModSpecificHighscoreMode.Never);
 
-        object ttSettings = OptionalTootTallySettings.AddNewPage("Highscore Accuracy", "Highscore Accuracy", 40, new Color(.1f, .1f, .1f, .1f));
+        object ttSettings = OptionalTootTally.AddNewPage("Highscore Accuracy", "Highscore Accuracy", 40, new Color(.1f, .1f, .1f, .1f));
         if (ttSettings != null)
         {
-            OptionalTootTallySettings.AddLabel(ttSettings, "Accuracy Type", 24, TMPro.TextAlignmentOptions.BottomLeft);
-            OptionalTootTallySettings.AddDropdown(ttSettings, "Accuracy Type", accType);
-            OptionalTootTallySettings.AddLabel(ttSettings, @"- Base Game: uses the internal calculations for the letter where >100% = S.
+            OptionalTootTally.AddLabel(ttSettings, "Accuracy Type", 24, TMPro.TextAlignmentOptions.BottomLeft);
+            OptionalTootTally.AddDropdown(ttSettings, "Accuracy Type", accType);
+            OptionalTootTally.AddLabel(ttSettings, @"- Base Game: uses the internal calculations for the letter where >100% = S.
 
 - Real: calculates the actual maximum score for a track.
 
@@ -72,9 +62,9 @@ For example, ignoring multipliers, completely missing the first note of a 100 no
 For example, ignoring multipliers, perfectly hitting the first note of a 100 note song will give you 1%."
                 , 24, TMPro.TextAlignmentOptions.TopLeft);
 
-            OptionalTootTallySettings.AddLabel(ttSettings, "Color Behavior", 24, TMPro.TextAlignmentOptions.BottomLeft);
-            OptionalTootTallySettings.AddDropdown(ttSettings, "Color Behavior", colorBehavior);
-            OptionalTootTallySettings.AddLabel(ttSettings, @"- Closeness: Color depends on how close you are to your PB (old Highscore Accuracy behavior)
+            OptionalTootTally.AddLabel(ttSettings, "Color Behavior", 24, TMPro.TextAlignmentOptions.BottomLeft);
+            OptionalTootTally.AddDropdown(ttSettings, "Color Behavior", colorBehavior);
+            OptionalTootTally.AddLabel(ttSettings, @"- Closeness: Color depends on how close you are to your PB (old Highscore Accuracy behavior)
     - Green: Above PB
     - Yellow: Up to 10% below PB
     - Red: More than 10% below PB
@@ -93,16 +83,15 @@ For example, ignoring multipliers, perfectly hitting the first note of a 100 not
     - Red: PB is impossible"
                 , 24, TMPro.TextAlignmentOptions.TopLeft);
 
-            OptionalTootTallySettings.AddSlider(ttSettings, "Decimal Places", 0, 4, decimals, true);
-            OptionalTootTallySettings.AddToggle(ttSettings, "Show Acc Ingame", showAccIngame);
-            OptionalTootTallySettings.AddToggle(ttSettings, "Show Letter Rank Ingame", showLetterIngame);
-            OptionalTootTallySettings.AddToggle(ttSettings, "Show PB Ingame", showPBIngame);
-            OptionalTootTallySettings.AddToggle(ttSettings, "Animate Counter", animateCounter);
-            OptionalTootTallySettings.AddLabel(ttSettings, "Use Game Speed and Modifier Specific High Scores", 24, TMPro.TextAlignmentOptions.BottomLeft);
-            OptionalTootTallySettings.AddDropdown(ttSettings, "Use Modifier and Game Speed Specific High Scores", useModSpecificHighscores);
-            OptionalTootTallySettings.AddLabel(ttSettings, @"Modifier and game speed specific high scores set without this mod installed are not saved and
-cannot be shown. While this setting is not set to Never, an asterisk will be shown next to the high
-score if the high score was set without this mod installed.
+            OptionalTootTally.AddSlider(ttSettings, "Decimal Places", 0, 4, decimals, true);
+            OptionalTootTally.AddToggle(ttSettings, "Show Acc Ingame", showAccIngame);
+            OptionalTootTally.AddToggle(ttSettings, "Show Letter Rank Ingame", showLetterIngame);
+            OptionalTootTally.AddToggle(ttSettings, "Show PB Ingame", showPBIngame);
+            OptionalTootTally.AddToggle(ttSettings, "Animate Counter", animateCounter);
+            OptionalTootTally.AddLabel(ttSettings, "Use Game Speed and Modifier Specific High Scores", 24, TMPro.TextAlignmentOptions.BottomLeft);
+            OptionalTootTally.AddDropdown(ttSettings, "Use Modifier and Game Speed Specific High Scores", useModSpecificHighscores);
+            OptionalTootTally.AddLabel(ttSettings, @"Modifier and game speed specific high scores set without this version of the mod installed are not saved and
+cannot be shown. While this setting is not set to Never, an asterisk will be shown next to the high score if the high score was set without this mod installed.
             
 - Never: High scores are not specific to modifiers or game speed. The highest score is shown
 regardless of which modifiers or game speed were used.
@@ -120,12 +109,9 @@ exact same modifiers and game speed, no high score is shown.
 A high score is only shown if the song has been played with the exact same modifiers and game speed
 with this mod installed. Otherwise, no high score is shown."
                 , 24, TMPro.TextAlignmentOptions.TopLeft);
-            OptionalTootTallySettings.AddLabel(ttSettings, @"If the dropdowns aren't showing up, update TootTally.
-You can still update accuracy type through the config file, as usual."
-                , 24, TMPro.TextAlignmentOptions.TopLeft);
         }
 
-        HighscoreRegistry.LoadHighscoresFromFile();
+        HighscoreRegistry.LoadHighscoresFromFile(OptionalTootTally.GlobalVariables == null);
 
         new Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
     }
@@ -193,8 +179,8 @@ You can still update accuracy type through the config file, as usual."
         {
             var highscoreResult = HighscoreRegistry.GetHighscore(
                 GlobalVariables.chosen_track,
-                GameModifierManager.GetModifiersString(),
-                TootTallyGlobalVariables.gameSpeedMultiplier
+                OptionalTootTally.GetModifiersString(),
+                OptionalTootTally.GameSpeedMultiplier()
             );
             if (highscoreResult.Score > 0)
             {
@@ -257,8 +243,8 @@ You can still update accuracy type through the config file, as usual."
         HighscoreRegistry.CheckNewScore(
             played_track.trackref,
             newscore,
-            GameModifierManager.GetModifiersString(),
-            TootTallyGlobalVariables.gameSpeedMultiplier
+            OptionalTootTally.GetModifiersString(),
+            OptionalTootTally.GameSpeedMultiplier()
         );
     }
 }
