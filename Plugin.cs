@@ -95,7 +95,7 @@ cannot be shown. While this setting is not set to Never, an asterisk will be sho
             
 - Global: High scores are not specific to modifiers or game speed. The highest score is shown
 regardless of which modifiers or game speed was used.
-            
+
 - ModSpecific: High scores are specific to modifiers and game speed.
 A high score is only shown if the song has been played with the exact same modifiers and game speed
 with this mod installed. Otherwise, no high score is shown.
@@ -106,7 +106,7 @@ game speeds is shown instead."
                 , 24, TMPro.TextAlignmentOptions.TopLeft);
         }
 
-        HighscoreRegistry.LoadHighscoresFromFile(OptionalTootTally.GlobalVariables == null);
+        HighscoreRegistry.LoadHighscoresFromFile(OptionalTootTally.TootTallyGlobalVariables == null);
 
         new Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
     }

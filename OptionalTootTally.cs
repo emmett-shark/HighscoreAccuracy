@@ -8,7 +8,7 @@ namespace HighscoreAccuracy;
 
 public class OptionalTootTally
 {
-    public static Type GlobalVariables = GetType("TootTallyCore.Utils.TootTallyGlobals.TootTallyGlobalVariables", "TootTallyCore");
+    public static Type TootTallyGlobalVariables = GetType("TootTallyCore.Utils.TootTallyGlobals.TootTallyGlobalVariables", "TootTallyCore");
 
     private static Type GetType(string fullName, string assembly)
     {
@@ -30,14 +30,14 @@ public class OptionalTootTally
         Type gameModifierManager = GetType("TootTallyGameModifiers.GameModifierManager", "TootTallyGameModifiers");
         if (gameModifierManager == null) return "";
         var getModifiersFn = gameModifierManager.GetMethod("GetModifiersString");
-        return getModifiersFn == null ? null : (string)getModifiersFn.Invoke(gameModifierManager, []);
+        return getModifiersFn == null ? "" : (string)getModifiersFn.Invoke(gameModifierManager, []);
     }
 
     public static float GameSpeedMultiplier()
     {
-        if (GlobalVariables == null) return 0;
-        var speedField = GlobalVariables.GetField("gameSpeedMultiplier", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
-        return speedField == null ? 0 : (float)speedField.GetValue(speedField);
+        if (TootTallyGlobalVariables == null) return GlobalVariables.turbomode ? 2f : 1f;
+        var speedField = TootTallyGlobalVariables.GetField("gameSpeedMultiplier", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+        return speedField == null ? 1f : (float)speedField.GetValue(speedField);
     }
 
     public static object AddNewPage(string pageName, string headerText, float elementSpacing, Color bgColor)
