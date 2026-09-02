@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using BaboonAPI.Hooks.Tracks;
+using HighscoreAccuracy.Enums;
 using TrombLoader.CustomTracks;
 using TrombLoader.Helpers;
 using UnityEngine;
