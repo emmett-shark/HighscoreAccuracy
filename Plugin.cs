@@ -90,23 +90,19 @@ For example, ignoring multipliers, perfectly hitting the first note of a 100 not
             OptionalTootTally.AddToggle(ttSettings, "Animate Counter", animateCounter);
             OptionalTootTally.AddLabel(ttSettings, "Use Game Speed and Modifier Specific High Scores", 24, TMPro.TextAlignmentOptions.BottomLeft);
             OptionalTootTally.AddDropdown(ttSettings, "Use Modifier and Game Speed Specific High Scores", useModSpecificHighscores);
-            OptionalTootTally.AddLabel(ttSettings, @"Modifier and game speed specific high scores set without this version of the mod installed are not saved and
-cannot be shown. While this setting is not set to Never, an asterisk will be shown next to the high score if the high score was set without this mod installed.
+            OptionalTootTally.AddLabel(ttSettings, @"Modifier and game speed specific high scores set without this version of the mod installed aren't saved and can't be shown.
             
-- Global: High scores are not specific to modifiers or game speed. The highest score is shown
-regardless of which modifiers or game speed was used.
+- Global: The highest score across all modifiers and game speeds is shown. (old Highscore Accuracy behavior)
 
-- ModSpecific: High scores are specific to modifiers and game speed.
-A high score is only shown if the song has been played with the exact same modifiers and game speed
-with this mod installed. Otherwise, no high score is shown.
+- ModSpecific: The modifier and game speed specific high score is shown if found.
+Otherwise, no high score is shown.
             
-- Hybrid: High scores are specific to modifiers and game speed. If a high score has not
-been set with the exact same modifiers and game speed, the highest score across all modifiers and
-game speeds is shown instead."
+- Hybrid: The modifier and game speed specific high score is shown if found.
+Otherwise, the highest score across all modifiers and game speeds is shown with an asterisk (*)."
                 , 24, TMPro.TextAlignmentOptions.TopLeft);
         }
 
-        HighscoreRegistry.LoadHighscoresFromFile(OptionalTootTally.TootTallyGlobalVariables == null);
+        HighscoreRegistry.LoadHighscoresFromFile();
 
         new Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
     }

@@ -11,9 +11,8 @@ public static class HighscoreRegistry
     // Dictionary structure: trackref -> mods -> gamespeed -> highscore
     private static Dictionary<string, Dictionary<string, Dictionary<int, int>>> _trackRefToHighscoreDict = new Dictionary<string, Dictionary<string, Dictionary<int, int>>>();
 
-    public static void LoadHighscoresFromFile(bool noTootTallyCore)
+    public static void LoadHighscoresFromFile()
     {
-        if (noTootTallyCore) return;
         _trackRefToHighscoreDict = FileHelper.LoadFromTootTallyAppData<Dictionary<string, Dictionary<string, Dictionary<int, int>>>>(Plugin.FILE_HIGHSCORES_NAME);
         if (_trackRefToHighscoreDict == default)
         {
@@ -50,7 +49,6 @@ public static class HighscoreRegistry
 
     public static HighscoreResult GetHighscore(string trackref, string mods, float gamespeed)
     {
-
         if (Plugin.useModSpecificHighscores.Value == Global)
             return new HighscoreResult(GetGlobalHighscore(), false);
 
